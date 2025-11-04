@@ -28,6 +28,12 @@
             --gradient-ocean: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
             --gradient-aurora: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
             --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --gradient-mint: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            --gradient-coral: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --gradient-lavender: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --gradient-fire: linear-gradient(135deg, #f83600 0%, #f9d423 100%);
+            --gradient-forest: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+            --gradient-night: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
             --accent-color: #FFBB94;
             --text-dark: #1D1A39;
             --text-light: #6c757d;
@@ -40,6 +46,7 @@
             --shadow-medium: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
             --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
             --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -50,7 +57,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: var(--text-dark);
             height: 100vh;
             overflow: hidden;
@@ -71,6 +78,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar .logo {
@@ -81,6 +89,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .sidebar nav ul {
@@ -90,6 +99,7 @@
 
         .sidebar nav li {
             margin-bottom: 8px;
+            position: relative;
         }
 
         .sidebar nav a {
@@ -100,8 +110,22 @@
             color: var(--sidebar-text);
             text-decoration: none;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--sidebar-active);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
         .sidebar nav a:hover,
@@ -109,6 +133,11 @@
             background-color: rgba(100, 255, 218, 0.1);
             color: var(--sidebar-active);
             transform: translateX(5px);
+        }
+
+        .sidebar nav a:hover::before,
+        .sidebar nav a.active::before {
+            transform: scaleY(1);
         }
 
         .sidebar nav a i {
@@ -123,6 +152,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            background: linear-gradient(135deg, rgba(245, 247, 250, 0.9) 0%, rgba(195, 207, 226, 0.9) 100%);
         }
 
         /* Dashboard Header */
@@ -146,7 +176,7 @@
             background: var(--bg-white);
             box-shadow: var(--shadow-light);
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .search-bar input:focus {
@@ -171,7 +201,10 @@
             font-weight: 600;
             color: var(--text-dark);
             white-space: nowrap;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .date-display:hover {
@@ -189,6 +222,7 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             position: relative;
             overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 240, 255, 0.9) 100%);
         }
 
         .welcome-banner::before {
@@ -277,7 +311,7 @@
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .view-all-btn:hover {
@@ -307,14 +341,31 @@
             gap: 15px;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: var(--transition);
             height: 100px;
             /* FIXED SIZE */
+        }
+
+        .gradient-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gradient-card:hover::after {
+            opacity: 1;
         }
 
         .gradient-card:hover {
             filter: brightness(1.1);
             box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            transform: translateY(-3px);
         }
 
         .gradient-card.warm {
@@ -341,10 +392,34 @@
             background: var(--gradient-purple);
         }
 
+        .gradient-card.mint {
+            background: var(--gradient-mint);
+        }
+
+        .gradient-card.coral {
+            background: var(--gradient-coral);
+        }
+
+        .gradient-card.lavender {
+            background: var(--gradient-lavender);
+        }
+
+        .gradient-card.fire {
+            background: var(--gradient-fire);
+        }
+
+        .gradient-card.forest {
+            background: var(--gradient-forest);
+        }
+
         .gradient-card i {
             font-size: 2.5rem;
             opacity: 0.8;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+        }
+
+        .gradient-card:hover i {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .card-content h4 {
@@ -384,12 +459,21 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .profile-widget {
             text-align: center;
             padding-bottom: 20px;
             border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .profile-widget .profile-pic-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
         }
 
         .profile-widget .profile-pic {
@@ -397,19 +481,46 @@
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 15px;
             border: 4px solid var(--accent-color);
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1;
         }
 
         .profile-widget .profile-pic:hover {
             transform: scale(1.05);
             border-color: var(--gradient-primary);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .profile-widget .profile-initial {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            background: var(--gradient-primary);
+            border: 4px solid var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .profile-widget .profile-initial:hover {
+            transform: scale(1.05);
+            border-color: var(--gradient-primary);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .profile-widget h3 {
             font-size: 1.2rem;
             margin-bottom: 5px;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .profile-widget p {
@@ -418,13 +529,23 @@
             margin-bottom: 15px;
         }
 
+        .profile-widget .profile-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #4caf50;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
         /* Mini Calendar */
         .mini-calendar {
             background: var(--bg-light);
             border-radius: var(--border-radius);
             padding: 15px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
         }
 
         .mini-calendar:hover {
@@ -456,7 +577,12 @@
         .mini-calendar-grid .day {
             padding: 5px 0;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            transition: var(--transition);
+        }
+
+        .mini-calendar-grid .day:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
         }
 
         .mini-calendar-grid .day.today {
@@ -482,6 +608,13 @@
             font-size: 1.1rem;
             margin-bottom: 15px;
             color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reminders h4 i {
+            color: var(--gradient-warm);
         }
 
         .reminders-list {
@@ -514,7 +647,21 @@
             align-items: center;
             gap: 10px;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reminders-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--gradient-primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
         .reminders-list li:hover {
@@ -522,9 +669,13 @@
             transform: translateX(-5px);
         }
 
+        .reminders-list li:hover::before {
+            transform: scaleY(1);
+        }
+
         .reminders-list .reminder-icon {
             color: var(--accent-color);
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .reminders-list li:hover .reminder-icon {
@@ -538,12 +689,49 @@
         .reminders-list .reminder-time {
             color: var(--text-light);
             font-size: 0.8rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .reminders-list li:hover .reminder-time {
             color: var(--text-dark);
             font-weight: 600;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+        }
+
+        .quick-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quick-action i {
+            font-size: 1.2rem;
+            color: var(--gradient-primary);
+        }
+
+        .quick-action span {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-3px);
+        }
+
+        .quick-action:hover i {
+            color: var(--gradient-warm);
         }
 
         /* Mobile Menu Toggle */
@@ -560,7 +748,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1.2rem;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .mobile-menu-toggle:hover {
@@ -680,9 +868,28 @@
         <!-- Right Sidebar -->
         <aside class="right-sidebar" id="rightSidebar">
             <div class="profile-widget">
-                <img src="" alt="Profile Pic" class="profile-pic" id="profilePic">
+                <div class="profile-pic-container" id="profilePicContainer">
+                    <!-- Profile picture will be loaded here -->
+                </div>
                 <h3 id="profileName">Loading...</h3>
                 <p id="profileUsername">@loading</p>
+                <p><span class="profile-status"></span>Active now</p>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="quick-action" onclick="window.location.href='profile.html'">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="quick-action" onclick="window.location.href='settings.html'">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </div>
+                    <div class="quick-action" onclick="window.location.href='chat.html'">
+                        <i class="fas fa-comment"></i>
+                        <span>Messages</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Mini Calendar -->
@@ -695,7 +902,7 @@
 
             <!-- Reminders Section -->
             <div class="reminders">
-                <h4>Reminders</h4>
+                <h4><i class="fas fa-bell"></i> Reminders</h4>
                 <ul class="reminders-list" id="remindersList">
                     <!-- Reminders will be loaded from Firebase -->
                 </ul>
@@ -755,30 +962,52 @@
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileUsername').textContent = '@' + currentUser.username;
-            // Update avatar display
-            function updateAvatar(userData) {
-                const avatarElement = document.getElementById('profileAvatar');
-                const initialElement = document.getElementById('avatarInitial');
+            
+            // Load user profile data including avatar
+            database.ref(`users/${currentUser.id}`).once('value')
+                .then(snapshot => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        updateProfileAvatar(userData);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading user data:", error);
+                });
+        }
 
-                // Clear previous avatar
-                avatarElement.innerHTML = '';
-
-                if (userData.avatar && userData.avatar !== '') {
-                    // Create image element
-                    const img = document.createElement('img');
-                    img.src = userData.avatar;
-                    img.alt = 'Profile Avatar';
-                    img.onerror = function () {
-                        // If image fails to load, show initial
-                        this.remove();
-                        showInitialAvatar(userData);
-                    };
-                    avatarElement.appendChild(img);
-                } else {
-                    // Show initial avatar
+        function updateProfileAvatar(userData) {
+            const profilePicContainer = document.getElementById('profilePicContainer');
+            
+            // Clear previous content
+            profilePicContainer.innerHTML = '';
+            
+            if (userData.avatar && userData.avatar !== '') {
+                // Create image element
+                const img = document.createElement('img');
+                img.src = userData.avatar;
+                img.alt = 'Profile Avatar';
+                img.className = 'profile-pic';
+                img.onerror = function() {
+                    // If image fails to load, show initial
+                    this.remove();
                     showInitialAvatar(userData);
-                }
+                };
+                profilePicContainer.appendChild(img);
+            } else {
+                // Show initial avatar
+                showInitialAvatar(userData);
             }
+        }
+
+        function showInitialAvatar(userData) {
+            const profilePicContainer = document.getElementById('profilePicContainer');
+            const initial = (userData.name || userData.username || 'User').charAt(0).toUpperCase();
+            
+            const initialElement = document.createElement('div');
+            initialElement.className = 'profile-initial';
+            initialElement.textContent = initial;
+            profilePicContainer.appendChild(initialElement);
         }
 
         function loadBenches() {
@@ -790,12 +1019,12 @@
                     benchesList.innerHTML = '';
                     if (snapshot.exists()) {
                         let count = 0;
+                        const gradients = ['warm', 'cool', 'sunset', 'ocean', 'aurora', 'purple', 'mint', 'coral', 'lavender', 'fire', 'forest'];
                         snapshot.forEach(childSnapshot => {
                             if (count >= 3) return;
                             const bench = childSnapshot.val();
-                            const gradients = ['warm', 'cool', 'sunset'];
                             const card = document.createElement('div');
-                            card.className = `gradient-card ${gradients[count]}`;
+                            card.className = `gradient-card ${gradients[count % gradients.length]}`;
                             card.innerHTML = `
                                 <i class="fas fa-book-open"></i>
                                 <div class="card-content">
@@ -829,10 +1058,10 @@
                             lessons.push({ key: childSnapshot.key, ...childSnapshot.val() });
                         });
                         lessons.reverse(); // Get the last items
+                        const gradients = ['ocean', 'aurora', 'purple', 'mint', 'coral', 'lavender', 'fire', 'forest'];
                         lessons.slice(0, 3).forEach((lesson, index) => {
-                            const gradients = ['ocean', 'aurora', 'purple'];
                             const card = document.createElement('div');
-                            card.className = `gradient-card ${gradients[index]}`;
+                            card.className = `gradient-card ${gradients[index % gradients.length]}`;
                             card.innerHTML = `
                                 <i class="fas fa-book-reader"></i>
                                 <div class="card-content">
