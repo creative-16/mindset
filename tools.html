@@ -1,0 +1,4971 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindset - Study Tools</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root {
+            /* Professional Gradient Palette */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-sunset: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-ocean: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --gradient-aurora: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --gradient-mint: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            --gradient-coral: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --gradient-lavender: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --accent-color: #FFBB94;
+            --text-dark: #1D1A39;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --sidebar-bg: #1a1d29;
+            --sidebar-text: #8892b0;
+            --sidebar-active: #64ffda;
+            --shadow-light: 0 10px 20px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 30px 25px;
+            color: var(--sidebar-text);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-white);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .sidebar nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 13px 18px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: rgba(100, 255, 218, 0.1);
+            color: var(--sidebar-active);
+            transform: translateX(5px);
+        }
+
+        .sidebar nav a i {
+            font-size: 1.2rem;
+            width: 25px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 25px 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            transition: var(--transition);
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Tools Container */
+        .tools-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            flex-grow: 1;
+        }
+
+        .tool-card {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 450px;
+            /* Fixed height for all cards */
+            transition: var(--transition);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        /* Special styling for timetable to make it span full width */
+        .tool-card.timetable-card {
+            grid-column: 1 / -1;
+            max-width: none;
+            height: 600px;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tool-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tool-title i {
+            color: var(--gradient-primary);
+        }
+
+        .tool-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tool-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .tool-action-btn:hover {
+            color: var(--gradient-primary);
+            transform: scale(1.1);
+        }
+
+        .tool-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .calendar-nav button:hover {
+            color: var(--gradient-primary);
+            transform: scale(1.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid .day-header {
+            font-weight: 600;
+            color: var(--text-light);
+            padding: 8px 0;
+        }
+
+        .calendar-grid .day {
+            padding: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-grid .day:hover {
+            background: var(--bg-light);
+            transform: scale(1.05);
+        }
+
+        .calendar-grid .day.today {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-grid .day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-color);
+        }
+
+        .calendar-grid .day.selected {
+            background: var(--gradient-cool);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-event-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .calendar-event-list.active {
+            display: block;
+        }
+
+        .calendar-event {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--bg-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calendar-event:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .calendar-event-info {
+            flex-grow: 1;
+        }
+
+        .calendar-event-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .calendar-event-type {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--gradient-cool);
+            color: white;
+            display: inline-block;
+        }
+
+        .calendar-event-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .calendar-event-action {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .calendar-event-action:hover {
+            color: var(--gradient-warm);
+            transform: scale(1.1);
+        }
+
+        .no-events {
+            text-align: center;
+            color: var(--text-light);
+            padding: 20px;
+        }
+
+        .back-to-calendar {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+
+        .back-to-calendar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* To-Do List Styles */
+        .todo-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .todo-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .todo-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+
+        .todo-input:focus {
+            outline: none;
+            border-color: var(--gradient-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-todo-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-todo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .todo-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--bg-light);
+            transition: var(--transition);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .todo-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .todo-text {
+            flex-grow: 1;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .todo-action {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .todo-action:hover {
+            color: var(--gradient-warm);
+            transform: scale(1.1);
+        }
+
+        /* Focus Timer Styles */
+        .focus-timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 20px 0;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timer-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .timer-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .timer-preset {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: var(--bg-light);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .timer-preset:hover {
+            background: var(--gradient-cool);
+            color: white;
+        }
+
+        /* Memory Aid Styles */
+        .memory-aid-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .memory-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .memory-tab {
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: var(--bg-light);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .memory-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .memory-content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .memory-card {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .memory-card-front,
+        .memory-card-back {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .memory-card-title {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .memory-card-content {
+            color: var(--text-light);
+        }
+
+        .memory-card.flipped {
+            background: var(--gradient-cool);
+            color: white;
+        }
+
+        .memory-card.flipped .memory-card-title,
+        .memory-card.flipped .memory-card-content {
+            color: white;
+        }
+
+        /* Quick Notes Styles */
+        .quick-notes-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .notes-input {
+            flex-grow: 1;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            resize: none;
+            margin-bottom: 15px;
+        }
+
+        .notes-input:focus {
+            outline: none;
+            border-color: var(--gradient-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .notes-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .save-notes-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .save-notes-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .notes-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .note-item {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--bg-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .note-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .note-content {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .note-date {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .note-action {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .note-action:hover {
+            color: var(--gradient-warm);
+            transform: scale(1.1);
+        }
+
+        /* Progress Tracker Styles */
+        .progress-tracker-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .progress-setup {
+            margin-bottom: 20px;
+        }
+
+        .progress-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .progress-input:focus {
+            outline: none;
+            border-color: var(--gradient-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .setup-progress-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .setup-progress-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-timeline {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .progress-item:hover {
+            transform: translateX(5px);
+        }
+
+        .progress-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .progress-marker:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-marker.completed {
+            background: var(--gradient-aurora);
+            color: white;
+        }
+
+        .progress-line {
+            flex-grow: 1;
+            height: 3px;
+            background: var(--bg-light);
+            position: relative;
+        }
+
+        .progress-line.completed {
+            background: var(--gradient-aurora);
+        }
+
+        .progress-text {
+            font-weight: 500;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+
+        .progress-item.completed .progress-text {
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+
+        /* Excel-like Timetable Styles - Enhanced */
+        .timetable-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .timetable-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timetable-dimensions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .timetable-dimension-input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .update-timetable-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .update-timetable-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .color-picker-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 5px;
+        }
+
+        .color-option {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: var(--text-dark);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .excel-timetable {
+            flex-grow: 1;
+            overflow: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            position: relative;
+        }
+
+        .excel-timetable table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .excel-timetable th,
+        .excel-timetable td {
+            border: 1px solid #e0e0e0;
+            padding: 8px;
+            text-align: center;
+            position: relative;
+            min-width: 100px;
+            height: 40px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .excel-timetable th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .excel-timetable th:first-child {
+            background: var(--gradient-cool);
+            position: sticky;
+            left: 0;
+            z-index: 11;
+        }
+
+        .excel-timetable td:first-child {
+            background: var(--bg-light);
+            font-weight: 500;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .excel-timetable td {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .excel-timetable td:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .excel-timetable td.editing {
+            padding: 0;
+        }
+
+        .excel-timetable td.editing input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            outline: 2px solid var(--gradient-primary);
+            background: white;
+        }
+
+        .excel-timetable .col-0 {
+            background: #f8f9fa;
+        }
+
+        .excel-timetable .col-1 {
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.2), rgba(255, 182, 193, 0.1));
+        }
+
+        .excel-timetable .col-2 {
+            background: linear-gradient(135deg, rgba(173, 216, 230, 0.2), rgba(173, 216, 230, 0.1));
+        }
+
+        .excel-timetable .col-3 {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(144, 238, 144, 0.1));
+        }
+
+        .excel-timetable .col-4 {
+            background: linear-gradient(135deg, rgba(255, 218, 185, 0.2), rgba(255, 218, 185, 0.1));
+        }
+
+        .excel-timetable .col-5 {
+            background: linear-gradient(135deg, rgba(221, 160, 221, 0.2), rgba(221, 160, 221, 0.1));
+        }
+
+        .excel-timetable .col-6 {
+            background: linear-gradient(135deg, rgba(255, 255, 224, 0.2), rgba(255, 255, 224, 0.1));
+        }
+
+        .excel-timetable .col-7 {
+            background: linear-gradient(135deg, rgba(255, 192, 203, 0.2), rgba(255, 192, 203, 0.1));
+        }
+
+        .excel-timetable .col-8 {
+            background: linear-gradient(135deg, rgba(176, 224, 230, 0.2), rgba(176, 224, 230, 0.1));
+        }
+
+        /* Column Resizer */
+        .column-resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            z-index: 100;
+            background-color: transparent;
+        }
+
+        .column-resizer:hover {
+            background-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .column-resizer.active {
+            background-color: var(--gradient-primary);
+        }
+
+        /* Cell Color Picker */
+        .cell-color-picker {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+        }
+
+        .cell-color-picker i {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .cell-color-picker:hover i {
+            color: var(--gradient-primary);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--gradient-warm);
+            transform: scale(1.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--gradient-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-checkbox {
+            margin-right: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Friend Search Styles */
+        .friend-search-container {
+            margin-bottom: 15px;
+        }
+
+        .friend-search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .friend-search-input:focus {
+            outline: none;
+            border-color: var(--gradient-primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .friend-search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--bg-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .friend-item:hover {
+            background: var(--gradient-cool);
+            color: white;
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .friend-info {
+            flex-grow: 1;
+        }
+
+        .friend-name {
+            font-weight: 500;
+        }
+
+        .friend-username {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .friend-item:hover .friend-username {
+            color: white;
+        }
+
+        .shared-users {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .shared-user {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: var(--bg-light);
+        }
+
+        .shared-user-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .shared-user-name {
+            font-size: 0.8rem;
+        }
+
+        .remove-shared-user {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        .remove-shared-user:hover {
+            color: var(--gradient-warm);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--gradient-aurora);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--gradient-warm);
+        }
+
+        .toast.info .toast-icon {
+            color: var(--gradient-cool);
+        }
+
+        .toast-message {
+            flex-grow: 1;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--sidebar-bg);
+            color: var(--bg-white);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--gradient-primary);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .tool-card.timetable-card {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                height: 100vh;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .tools-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo"><i class="fas fa-graduation-cap"></i><span>Mindset</span></div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="bench.html"><i class="fas fa-book-open"></i> Benches</a></li>
+                    <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="#" class="active"><i class="fas fa-tools"></i> Tools</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1 class="page-title">Study Tools</h1>
+            </div>
+
+            <!-- Tools Container -->
+            <div class="tools-container">
+                <!-- Calendar Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-calendar-alt"></i> Calendar</h2>
+                        <div class="tool-actions">
+                            <button class="tool-action-btn" id="addEventBtn"><i class="fas fa-plus"></i></button>
+                            <button class="tool-action-btn" id="shareCalendarBtn"><i
+                                    class="fas fa-share-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <h3 id="calendarMonthYear">Loading...</h3>
+                                <div class="calendar-nav">
+                                    <button id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+                                    <button id="todayBtn">Today</button>
+                                    <button id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="calendar-grid" id="calendarGrid">
+                                <!-- Calendar will be generated dynamically -->
+                            </div>
+                            <div class="calendar-event-list" id="calendarEventList">
+                                <!-- Events will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- To-Do List Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-tasks"></i> To-Do List</h2>
+                        <div class="tool-actions">
+                            <button class="tool-action-btn" id="shareTodoBtn"><i class="fas fa-share-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="todo-container">
+                            <div class="todo-input-container">
+                                <input type="text" class="todo-input" id="todoInput" placeholder="Add a new task...">
+                                <button class="add-todo-btn" id="addTodoBtn"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="todo-list" id="todoList">
+                                <!-- Todo items will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Focus Timer Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-clock"></i> Focus Timer</h2>
+                    </div>
+                    <div class="tool-content">
+                        <div class="focus-timer-container">
+                            <div class="timer-display" id="timerDisplay">25:00</div>
+                            <div class="timer-controls">
+                                <button class="timer-btn" id="startTimerBtn"><i class="fas fa-play"></i></button>
+                                <button class="timer-btn" id="pauseTimerBtn"><i class="fas fa-pause"></i></button>
+                                <button class="timer-btn" id="resetTimerBtn"><i class="fas fa-redo"></i></button>
+                            </div>
+                            <div class="timer-presets" id="timerPresets">
+                                <!-- Timer presets will be generated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Aid Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-brain"></i> Memory Aids</h2>
+                    </div>
+                    <div class="tool-content">
+                        <div class="memory-aid-container">
+                            <div class="memory-tabs">
+                                <button class="memory-tab active" data-tab="flashcards"><i
+                                        class="fas fa-layer-group"></i> Flashcards</button>
+                                <button class="memory-tab" data-tab="mnemonics"><i class="fas fa-lightbulb"></i>
+                                    Mnemonics</button>
+                                <button class="memory-tab" data-tab="mindmap"><i class="fas fa-project-diagram"></i>
+                                    Mind Map</button>
+                            </div>
+                            <div class="memory-content" id="memoryContent">
+                                <!-- Memory content will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Notes Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-sticky-note"></i> Quick Notes</h2>
+                    </div>
+                    <div class="tool-content">
+                        <div class="quick-notes-container">
+                            <textarea class="notes-input" id="notesInput"
+                                placeholder="Write your quick notes here..."></textarea>
+                            <div class="notes-actions">
+                                <button class="save-notes-btn" id="saveNotesBtn"><i class="fas fa-save"></i>
+                                    Save</button>
+                                <button class="btn btn-secondary" id="clearNotesBtn"><i class="fas fa-eraser"></i>
+                                    Clear</button>
+                            </div>
+                            <div class="notes-list" id="notesList">
+                                <!-- Saved notes will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Tracker Tool -->
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-chart-line"></i> Progress Tracker</h2>
+                    </div>
+                    <div class="tool-content">
+                        <div class="progress-tracker-container">
+                            <div class="progress-setup">
+                                <input type="text" class="progress-input" id="progressTitle"
+                                    placeholder="Progress title (e.g., Math Course)">
+                                <input type="number" class="progress-input" id="progressTasks"
+                                    placeholder="Number of tasks" min="1">
+                                <button class="setup-progress-btn" id="setupProgressBtn"><i class="fas fa-plus"></i>
+                                    Setup Progress</button>
+                            </div>
+                            <div class="progress-timeline" id="progressTimeline">
+                                <!-- Progress timeline will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Excel-like Timetable Tool - Enhanced -->
+                <div class="tool-card timetable-card">
+                    <div class="tool-header">
+                        <h2 class="tool-title"><i class="fas fa-table"></i> Excel Timetable</h2>
+                        <div class="tool-actions">
+                            <button class="tool-action-btn" id="clearTimetableBtn"><i
+                                    class="fas fa-trash-alt"></i></button>
+                            <button class="tool-action-btn" id="exportTimetableBtn"><i
+                                    class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    <div class="tool-content">
+                        <div class="timetable-container">
+                            <div class="timetable-controls">
+                                <div class="timetable-dimensions">
+                                    <input type="number" class="timetable-dimension-input" id="timetableRows" value="15"
+                                        min="1" max="100">
+                                    <span>rows</span>
+                                    <input type="number" class="timetable-dimension-input" id="timetableCols" value="8"
+                                        min="1" max="100">
+                                    <span>cols</span>
+                                    <button class="update-timetable-btn" id="updateTimetableBtn"><i
+                                            class="fas fa-sync"></i> Update</button>
+                                </div>
+                                <div class="color-picker-container">
+                                    <span>Cell Colors:</span>
+                                    <div class="color-picker" id="colorPicker">
+                                        <div class="color-option" data-color="col-0" style="background: #f8f9fa;"
+                                            title="Default"></div>
+                                        <div class="color-option" data-color="col-1" style="background: #ffb6c1;"
+                                            title="Pink"></div>
+                                        <div class="color-option" data-color="col-2" style="background: #add8e6;"
+                                            title="Light Blue"></div>
+                                        <div class="color-option" data-color="col-3" style="background: #90ee90;"
+                                            title="Light Green"></div>
+                                        <div class="color-option" data-color="col-4" style="background: #ffdab9;"
+                                            title="Peach"></div>
+                                        <div class="color-option" data-color="col-5" style="background: #dda0dd;"
+                                            title="Plum"></div>
+                                        <div class="color-option" data-color="col-6" style="background: #ffffe0;"
+                                            title="Light Yellow"></div>
+                                        <div class="color-option" data-color="col-7" style="background: #ffc0cb;"
+                                            title="Pink"></div>
+                                        <div class="color-option" data-color="col-8" style="background: #b0e0e6;"
+                                            title="Powder Blue"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="excel-timetable" id="excelTimetable">
+                                <!-- Excel-like table will be generated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="eventModalTitle">Add Event</h3>
+                <button class="modal-close" id="closeEventModal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="eventForm">
+                <div class="form-group">
+                    <label class="form-label" for="eventTitle">Event Title</label>
+                    <input type="text" class="form-input" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eventDate">Date</label>
+                    <input type="date" class="form-input" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eventType">Type</label>
+                    <select class="form-select" id="eventType">
+                        <option value="task">Task</option>
+                        <option value="reminder">Reminder</option>
+                        <option value="exam">Exam</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="eventDescription">Description</label>
+                    <textarea class="form-textarea" id="eventDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" class="form-checkbox" id="eventPrivate"> Private (not visible to shared
+                        users)
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEventBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveEventBtn">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Calendar Modal -->
+    <div class="modal" id="shareCalendarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Share Calendar</h3>
+                <button class="modal-close" id="closeShareCalendarModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="friend-search-container">
+                <input type="text" class="friend-search-input" id="calendarFriendSearch"
+                    placeholder="Search for friends...">
+                <div class="friend-search-results" id="calendarFriendSearchResults">
+                    <!-- Search results will be displayed here -->
+                </div>
+            </div>
+            <div class="shared-users" id="calendarSharedUsers">
+                <!-- Shared users will be displayed here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelShareCalendarBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveShareCalendarBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Todo Modal -->
+    <div class="modal" id="shareTodoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Share To-Do List</h3>
+                <button class="modal-close" id="closeShareTodoModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="friend-search-container">
+                <input type="text" class="friend-search-input" id="todoFriendSearch"
+                    placeholder="Search for friends...">
+                <div class="friend-search-results" id="todoFriendSearchResults">
+                    <!-- Search results will be displayed here -->
+                </div>
+            </div>
+            <div class="shared-users" id="todoSharedUsers">
+                <!-- Shared users will be displayed here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelShareTodoBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveShareTodoBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="toast-message" id="toastMessage">Notification message</div>
+        <button class="toast-close" id="toastClose"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-a6qP2kDNCdVv0zRl2AQYJ3QTNe18cYA",
+            authDomain: "mindset-94cb1.firebaseapp.com",
+            projectId: "mindset-94cb1",
+            storageBucket: "mindset-94cb1.firebasestorage.app",
+            messagingSenderId: "1070543818778",
+            appId: "1:1070543818778:web:39414a72999678399ac1a3",
+            databaseURL: "https://mindset-94cb1-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let currentUser = null;
+
+        // Check authentication state
+        function checkAuthState() {
+            const userSession = JSON.parse(localStorage.getItem('mindsetUser'));
+            if (!userSession) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (!userSession.id) {
+                database.ref('users').orderByChild('username').equalTo(userSession.username).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            userSession.id = childSnapshot.key;
+                            localStorage.setItem('mindsetUser', JSON.stringify(userSession));
+                            currentUser = userSession;
+                            initializeTools();
+                        });
+                    } else {
+                        localStorage.removeItem('mindsetUser');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                currentUser = userSession;
+                initializeTools();
+            }
+        }
+
+        // Initialize all tools
+        function initializeTools() {
+            showLoading();
+            initializeCalendar();
+            initializeTodoList();
+            initializeFocusTimer();
+            initializeMemoryAids();
+            initializeQuickNotes();
+            initializeProgressTracker();
+            initializeExcelTimetable();
+            setupEventListeners();
+            hideLoading();
+        }
+
+        // Show loading overlay
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }, 500);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = toast.querySelector('.toast-icon i');
+
+            // Set message
+            toastMessage.textContent = message;
+
+            // Set type
+            toast.className = 'toast ' + type;
+
+            // Set icon
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                toastIcon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'info') {
+                toastIcon.className = 'fas fa-info-circle';
+            }
+
+            // Show toast
+            toast.classList.add('show');
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Excel Timetable - Enhanced
+        let timetableData = [];
+        let timetableRows = 15;
+        let timetableCols = 8;
+        let selectedColor = null;
+        let isEditing = false;
+        let currentEditCell = null;
+        let columnWidths = [];
+        let cellColors = {};
+
+        function initializeExcelTimetable() {
+            loadTimetableData();
+            renderExcelTimetable();
+            setupColorPicker();
+        }
+
+        function loadTimetableData() {
+            database.ref(`users/${currentUser.id}/excelTimetable`).once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        timetableData = data.data || [];
+                        timetableRows = data.rows || 15;
+                        timetableCols = data.cols || 8;
+                        columnWidths = data.columnWidths || Array(timetableCols).fill(100);
+                        cellColors = data.cellColors || {};
+                        document.getElementById('timetableRows').value = timetableRows;
+                        document.getElementById('timetableCols').value = timetableCols;
+                    } else {
+                        // Initialize empty timetable
+                        initializeEmptyTimetable();
+                        columnWidths = Array(timetableCols).fill(100);
+                    }
+                    renderExcelTimetable();
+                });
+        }
+
+        function initializeEmptyTimetable() {
+            timetableData = [];
+            for (let i = 0; i < timetableRows; i++) {
+                const row = [];
+                for (let j = 0; j < timetableCols; j++) {
+                    row.push('');
+                }
+                timetableData.push(row);
+            }
+        }
+
+        function renderExcelTimetable() {
+            const container = document.getElementById('excelTimetable');
+            container.innerHTML = '';
+
+            const table = document.createElement('table');
+
+            // Create header row
+            const headerRow = document.createElement('tr');
+
+            // Empty top-left cell
+            const emptyHeaderCell = document.createElement('th');
+            emptyHeaderCell.style.width = `${columnWidths[0]}px`;
+            headerRow.appendChild(emptyHeaderCell);
+
+            // Create column headers (A, B, C, etc.)
+            for (let j = 1; j < timetableCols; j++) {
+                const th = document.createElement('th');
+                th.textContent = String.fromCharCode(64 + j); // A, B, C, etc.
+                th.setAttribute('data-col', j);
+                th.style.width = `${columnWidths[j]}px`;
+                th.style.position = 'relative';
+
+                // Add column resizer
+                const resizer = document.createElement('div');
+                resizer.className = 'column-resizer';
+                resizer.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startColumnResize(j, e);
+                });
+                th.appendChild(resizer);
+
+                headerRow.appendChild(th);
+            }
+            table.appendChild(headerRow);
+
+            // Create data rows
+            for (let i = 0; i < timetableRows; i++) {
+                const row = document.createElement('tr');
+
+                // Row number cell
+                const rowHeaderCell = document.createElement('th');
+                rowHeaderCell.textContent = i + 1;
+                rowHeaderCell.style.width = `${columnWidths[0]}px`;
+                row.appendChild(rowHeaderCell);
+
+                // Data cells
+                for (let j = 1; j < timetableCols; j++) {
+                    const cell = document.createElement('td');
+                    cell.setAttribute('data-row', i);
+                    cell.setAttribute('data-col', j);
+                    cell.style.width = `${columnWidths[j]}px`;
+                    cell.style.position = 'relative';
+
+                    if (timetableData[i] && timetableData[i][j]) {
+                        cell.textContent = timetableData[i][j];
+                    }
+
+                    // Apply cell color if exists
+                    const cellKey = `${i}-${j}`;
+                    if (cellColors[cellKey]) {
+                        cell.classList.add(cellColors[cellKey]);
+                    }
+
+                    // Add cell color picker
+                    const colorPicker = document.createElement('div');
+                    colorPicker.className = 'cell-color-picker';
+                    colorPicker.innerHTML = '<i class="fas fa-palette"></i>';
+                    colorPicker.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showCellColorPicker(i, j);
+                    });
+                    cell.appendChild(colorPicker);
+
+                    // Add click event for editing
+                    cell.addEventListener('click', (e) => {
+                        if (!isEditing && e.target.tagName !== 'I') {
+                            startEditCell(cell, i, j);
+                        }
+                    });
+
+                    row.appendChild(cell);
+                }
+
+                table.appendChild(row);
+            }
+
+            container.appendChild(table);
+        }
+
+        function startEditCell(cell, row, col) {
+            if (isEditing) return;
+
+            isEditing = true;
+            currentEditCell = { cell, row, col };
+
+            const currentValue = cell.textContent;
+            cell.classList.add('editing');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.height = '100%';
+            input.style.border = 'none';
+            input.style.padding = '8px';
+            input.style.fontFamily = 'Poppins, sans-serif';
+            input.style.fontSize = '0.9rem';
+            input.style.outline = '2px solid var(--gradient-primary)';
+            input.style.background = 'white';
+
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+
+            // Save on blur or Enter
+            const saveCell = () => {
+                const newValue = input.value;
+                if (!timetableData[row]) {
+                    timetableData[row] = [];
+                }
+                timetableData[row][col] = newValue;
+
+                cell.classList.remove('editing');
+                cell.textContent = newValue;
+
+                // Apply cell color if exists
+                const cellKey = `${row}-${col}`;
+                if (cellColors[cellKey]) {
+                    cell.classList.add(cellColors[cellKey]);
+                }
+
+                // Re-add color picker
+                const colorPicker = document.createElement('div');
+                colorPicker.className = 'cell-color-picker';
+                colorPicker.innerHTML = '<i class="fas fa-palette"></i>';
+                colorPicker.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showCellColorPicker(row, col);
+                });
+                cell.appendChild(colorPicker);
+
+                // Save to Firebase
+                saveTimetableData();
+
+                isEditing = false;
+                currentEditCell = null;
+            };
+
+            input.addEventListener('blur', saveCell);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveCell();
+                } else if (e.key === 'Escape') {
+                    cell.classList.remove('editing');
+                    cell.textContent = currentValue;
+
+                    // Re-add color picker
+                    const colorPicker = document.createElement('div');
+                    colorPicker.className = 'cell-color-picker';
+                    colorPicker.innerHTML = '<i class="fas fa-palette"></i>';
+                    colorPicker.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showCellColorPicker(row, col);
+                    });
+                    cell.appendChild(colorPicker);
+
+                    isEditing = false;
+                    currentEditCell = null;
+                }
+            });
+        }
+
+        function showCellColorPicker(row, col) {
+            // Create a modal for cell color selection
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Cell Color';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const colorGrid = document.createElement('div');
+            colorGrid.style.display = 'grid';
+            colorGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+            colorGrid.style.gap = '10px';
+            colorGrid.style.marginBottom = '20px';
+
+            const colors = [
+                { name: 'Default', class: 'col-0', color: '#f8f9fa' },
+                { name: 'Pink', class: 'col-1', color: '#ffb6c1' },
+                { name: 'Light Blue', class: 'col-2', color: '#add8e6' },
+                { name: 'Light Green', class: 'col-3', color: '#90ee90' },
+                { name: 'Peach', class: 'col-4', color: '#ffdab9' },
+                { name: 'Plum', class: 'col-5', color: '#dda0dd' },
+                { name: 'Light Yellow', class: 'col-6', color: '#ffffe0' },
+                { name: 'Pink', class: 'col-7', color: '#ffc0cb' },
+                { name: 'Powder Blue', class: 'col-8', color: '#b0e0e6' },
+                { name: 'White', class: '', color: '#ffffff' }
+            ];
+
+            colors.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.style.width = '40px';
+                colorOption.style.height = '40px';
+                colorOption.style.backgroundColor = color.color;
+                colorOption.style.borderRadius = '4px';
+                colorOption.style.cursor = 'pointer';
+                colorOption.style.border = '1px solid #e0e0e0';
+                colorOption.title = color.name;
+
+                colorOption.addEventListener('click', () => {
+                    const cellKey = `${row}-${col}`;
+
+                    // Remove all color classes
+                    const cell = document.querySelector(`td[data-row="${row}"][data-col="${col}"]`);
+                    cell.className = cell.className.replace(/col-\d+/g, '');
+
+                    // Apply new color if not white
+                    if (color.class) {
+                        cell.classList.add(color.class);
+                        cellColors[cellKey] = color.class;
+                    } else {
+                        delete cellColors[cellKey];
+                    }
+
+                    saveTimetableData();
+                    document.body.removeChild(modal);
+                });
+
+                colorGrid.appendChild(colorOption);
+            });
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            formActions.appendChild(cancelBtn);
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(colorGrid);
+            modalContent.appendChild(formActions);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function startColumnResize(colIndex, e) {
+            const startX = e.clientX;
+            const startWidth = columnWidths[colIndex];
+            const table = document.querySelector('.excel-timetable table');
+
+            const resizer = document.createElement('div');
+            resizer.className = 'column-resizer active';
+            resizer.style.position = 'fixed';
+            resizer.style.left = `${startX}px`;
+            resizer.style.top = '0';
+            resizer.style.height = '100vh';
+            resizer.style.width = '5px';
+            resizer.style.zIndex = '1000';
+            resizer.style.cursor = 'col-resize';
+            document.body.appendChild(resizer);
+
+            const doDrag = (e) => {
+                const newWidth = startWidth + (e.clientX - startX);
+                if (newWidth > 50) { // Minimum width
+                    columnWidths[colIndex] = newWidth;
+
+                    // Update column width
+                    const cells = document.querySelectorAll(`[data-col="${colIndex}"]`);
+                    cells.forEach(cell => {
+                        cell.style.width = `${newWidth}px`;
+                    });
+
+                    // Update resizer position
+                    resizer.style.left = `${e.clientX}px`;
+                }
+            };
+
+            const stopDrag = () => {
+                document.body.removeChild(resizer);
+                document.removeEventListener('mousemove', doDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                saveTimetableData();
+            };
+
+            document.addEventListener('mousemove', doDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function saveTimetableData() {
+            database.ref(`users/${currentUser.id}/excelTimetable`).set({
+                data: timetableData,
+                rows: timetableRows,
+                cols: timetableCols,
+                columnWidths: columnWidths,
+                cellColors: cellColors,
+                updatedAt: new Date().toISOString()
+            });
+        }
+
+        function setupColorPicker() {
+            const colorOptions = document.querySelectorAll('.color-option');
+
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+
+                    selectedColor = option.getAttribute('data-color');
+                    showToast('Color selected. Click on a cell to apply.', 'info');
+                });
+            });
+        }
+
+        function updateTimetableSize() {
+            const newRows = parseInt(document.getElementById('timetableRows').value);
+            const newCols = parseInt(document.getElementById('timetableCols').value);
+
+            if (newRows > 0 && newRows <= 100 && newCols > 0 && newCols <= 100) {
+                // Resize data array
+                const newData = [];
+                for (let i = 0; i < newRows; i++) {
+                    const row = [];
+                    for (let j = 0; j < newCols; j++) {
+                        if (timetableData[i] && timetableData[i][j] !== undefined) {
+                            row[j] = timetableData[i][j];
+                        } else {
+                            row[j] = '';
+                        }
+                    }
+                    newData.push(row);
+                }
+
+                // Resize column widths array
+                const newColumnWidths = [];
+                for (let j = 0; j < newCols; j++) {
+                    if (columnWidths[j] !== undefined) {
+                        newColumnWidths[j] = columnWidths[j];
+                    } else {
+                        newColumnWidths[j] = 100; // Default width
+                    }
+                }
+
+                timetableRows = newRows;
+                timetableCols = newCols;
+                timetableData = newData;
+                columnWidths = newColumnWidths;
+
+                saveTimetableData();
+                renderExcelTimetable();
+                setupColorPicker();
+
+                showToast('Timetable resized successfully!', 'success');
+            } else {
+                showToast('Invalid dimensions. Rows: 1-100, Cols: 1-100', 'error');
+            }
+        }
+
+        function clearTimetable() {
+            if (!confirm('Are you sure you want to clear the entire timetable? This action cannot be undone.')) {
+                return;
+            }
+
+            initializeEmptyTimetable();
+            cellColors = {};
+            saveTimetableData();
+            renderExcelTimetable();
+            showToast('Timetable cleared!', 'success');
+        }
+
+        function exportTimetable() {
+            let csv = ',';
+
+            // Add header row
+            for (let j = 1; j < timetableCols; j++) {
+                csv += String.fromCharCode(64 + j); // A, B, C, etc.
+                if (j < timetableCols - 1) csv += ',';
+            }
+            csv += '\n';
+
+            // Add data rows
+            for (let i = 0; i < timetableRows; i++) {
+                csv += `${i + 1},`;
+                for (let j = 1; j < timetableCols; j++) {
+                    csv += timetableData[i] && timetableData[i][j] ? timetableData[i][j] : '';
+                    if (j < timetableCols - 1) csv += ',';
+                }
+                csv += '\n';
+            }
+
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timetable_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showToast('Timetable exported successfully!', 'success');
+        }
+
+        // Calendar Tool
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = null;
+        let calendarEvents = {};
+        let sharedCalendarUsers = [];
+        let editingEventId = null;
+
+        function initializeCalendar() {
+            renderCalendar();
+            loadCalendarEvents();
+            loadSharedCalendarUsers();
+        }
+
+        function renderCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+
+            document.getElementById('calendarMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Add day headers (single letters)
+            const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                dayElement.textContent = day;
+
+                // Check if this day is today
+                if (today.getFullYear() === currentYear &&
+                    today.getMonth() === currentMonth &&
+                    today.getDate() === day) {
+                    dayElement.classList.add('today');
+                }
+
+                // Check if this day has events
+                const dateStr = `${currentYear}-${currentMonth + 1}-${day}`;
+                if (calendarEvents[dateStr] && calendarEvents[dateStr].length > 0) {
+                    dayElement.classList.add('has-event');
+                }
+
+                // Check if this day is selected
+                if (selectedDate === dateStr) {
+                    dayElement.classList.add('selected');
+                }
+
+                // Add click event
+                dayElement.addEventListener('click', () => {
+                    selectedDate = dateStr;
+                    renderCalendar();
+                    showEventsForDate(dateStr);
+                });
+
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function showEventsForDate(dateStr) {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const eventList = document.getElementById('calendarEventList');
+
+            // Hide calendar and show event list
+            calendarGrid.style.display = 'none';
+            eventList.classList.add('active');
+
+            // Clear previous events
+            eventList.innerHTML = '';
+
+            // Add back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'back-to-calendar';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Calendar';
+            backBtn.addEventListener('click', () => {
+                calendarGrid.style.display = 'grid';
+                eventList.classList.remove('active');
+            });
+            eventList.appendChild(backBtn);
+
+            // Add date header
+            const dateHeader = document.createElement('h3');
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const dateObj = new Date(year, month - 1, day);
+            dateHeader.textContent = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            dateHeader.style.marginBottom = '15px';
+            eventList.appendChild(dateHeader);
+
+            // Check if there are events for this date
+            if (calendarEvents[dateStr] && calendarEvents[dateStr].length > 0) {
+                calendarEvents[dateStr].forEach(event => {
+                    const eventElement = document.createElement('div');
+                    eventElement.className = 'calendar-event';
+
+                    const eventInfo = document.createElement('div');
+                    eventInfo.className = 'calendar-event-info';
+
+                    const eventTitle = document.createElement('div');
+                    eventTitle.className = 'calendar-event-title';
+                    eventTitle.textContent = event.title;
+
+                    const eventType = document.createElement('div');
+                    eventType.className = 'calendar-event-type';
+                    eventType.textContent = event.type;
+
+                    eventInfo.appendChild(eventTitle);
+                    eventInfo.appendChild(eventType);
+
+                    const eventActions = document.createElement('div');
+                    eventActions.className = 'calendar-event-actions';
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'calendar-event-action';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                    editBtn.addEventListener('click', () => {
+                        editEvent(event.id);
+                    });
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'calendar-event-action';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.addEventListener('click', () => {
+                        deleteEvent(event.id);
+                    });
+
+                    eventActions.appendChild(editBtn);
+                    eventActions.appendChild(deleteBtn);
+
+                    eventElement.appendChild(eventInfo);
+                    eventElement.appendChild(eventActions);
+                    eventList.appendChild(eventElement);
+                });
+            } else {
+                const noEvents = document.createElement('div');
+                noEvents.className = 'no-events';
+                noEvents.innerHTML = '<i class="fas fa-calendar-times"></i><p>No events for this day</p>';
+                eventList.appendChild(noEvents);
+            }
+        }
+
+        function loadCalendarEvents() {
+            database.ref(`users/${currentUser.id}/calendarEvents`).once('value')
+                .then(snapshot => {
+                    calendarEvents = snapshot.val() || {};
+                    renderCalendar();
+
+                    // Load events from shared users
+                    sharedCalendarUsers.forEach(userId => {
+                        database.ref(`users/${userId}/calendarEvents`).once('value')
+                            .then(sharedSnapshot => {
+                                const sharedEvents = sharedSnapshot.val() || {};
+                                Object.keys(sharedEvents).forEach(dateStr => {
+                                    if (!calendarEvents[dateStr]) {
+                                        calendarEvents[dateStr] = [];
+                                    }
+                                    sharedEvents[dateStr].forEach(event => {
+                                        if (!event.private) {
+                                            calendarEvents[dateStr].push({
+                                                ...event,
+                                                shared: true,
+                                                sharedBy: userId
+                                            });
+                                        }
+                                    });
+                                });
+                                renderCalendar();
+                            });
+                    });
+                });
+        }
+
+        function saveEvent(eventData) {
+            const date = eventData.date;
+
+            // Generate unique ID if not provided
+            if (!eventData.id) {
+                eventData.id = Date.now().toString();
+            }
+
+            // Initialize date array if it doesn't exist
+            if (!calendarEvents[date]) {
+                calendarEvents[date] = [];
+            }
+
+            // Check if editing existing event
+            if (editingEventId) {
+                // Find and update the event
+                const eventIndex = calendarEvents[date].findIndex(e => e.id === editingEventId);
+                if (eventIndex !== -1) {
+                    calendarEvents[date][eventIndex] = eventData;
+                }
+                editingEventId = null;
+            } else {
+                // Add new event
+                calendarEvents[date].push(eventData);
+            }
+
+            // Save to Firebase
+            database.ref(`users/${currentUser.id}/calendarEvents`).set(calendarEvents);
+
+            // Close modal and refresh
+            document.getElementById('eventModal').classList.remove('active');
+            renderCalendar();
+
+            // Show success message
+            showToast('Event saved successfully!', 'success');
+        }
+
+        function editEvent(eventId) {
+            // Find the event
+            let eventToEdit = null;
+            let eventDate = null;
+
+            Object.keys(calendarEvents).forEach(date => {
+                const event = calendarEvents[date].find(e => e.id === eventId);
+                if (event) {
+                    eventToEdit = event;
+                    eventDate = date;
+                }
+            });
+
+            if (!eventToEdit) return;
+
+            // Set editing flag
+            editingEventId = eventId;
+
+            // Update modal title
+            document.getElementById('eventModalTitle').textContent = 'Edit Event';
+
+            // Populate form
+            document.getElementById('eventTitle').value = eventToEdit.title;
+            document.getElementById('eventDate').value = eventDate;
+            document.getElementById('eventType').value = eventToEdit.type;
+            document.getElementById('eventDescription').value = eventToEdit.description || '';
+            document.getElementById('eventPrivate').checked = eventToEdit.private || false;
+
+            // Show modal
+            document.getElementById('eventModal').classList.add('active');
+        }
+
+        function deleteEvent(eventId) {
+            // Find and remove the event
+            Object.keys(calendarEvents).forEach(date => {
+                const eventIndex = calendarEvents[date].findIndex(e => e.id === eventId);
+                if (eventIndex !== -1) {
+                    calendarEvents[date].splice(eventIndex, 1);
+
+                    // Remove date array if empty
+                    if (calendarEvents[date].length === 0) {
+                        delete calendarEvents[date];
+                    }
+                }
+            });
+
+            // Save to Firebase
+            database.ref(`users/${currentUser.id}/calendarEvents`).set(calendarEvents);
+
+            // Refresh display
+            if (selectedDate) {
+                showEventsForDate(selectedDate);
+            } else {
+                renderCalendar();
+            }
+
+            // Show success message
+            showToast('Event deleted successfully!', 'success');
+        }
+
+        function loadSharedCalendarUsers() {
+            database.ref(`users/${currentUser.id}/sharedCalendar`).once('value')
+                .then(snapshot => {
+                    const sharedUsers = snapshot.val() || [];
+                    sharedCalendarUsers = sharedUsers;
+                    updateSharedCalendarUsersDisplay();
+                    loadCalendarEvents(); // Reload events with shared users
+                });
+        }
+
+        function updateSharedCalendarUsersDisplay() {
+            const sharedUsersContainer = document.getElementById('calendarSharedUsers');
+            sharedUsersContainer.innerHTML = '';
+
+            if (sharedCalendarUsers.length === 0) {
+                sharedUsersContainer.innerHTML = '<p style="color: var(--text-light);">Not shared with anyone</p>';
+                return;
+            }
+
+            sharedCalendarUsers.forEach(userId => {
+                database.ref(`users/${userId}`).once('value')
+                    .then(snapshot => {
+                        const user = snapshot.val();
+                        if (user) {
+                            const userElement = document.createElement('div');
+                            userElement.className = 'shared-user';
+
+                            const avatar = document.createElement('img');
+                            avatar.className = 'shared-user-avatar';
+                            avatar.src = `https://i.pravatar.cc/150?u=${user.username}`;
+
+                            const name = document.createElement('span');
+                            name.className = 'shared-user-name';
+                            name.textContent = user.name;
+
+                            const removeBtn = document.createElement('button');
+                            removeBtn.className = 'remove-shared-user';
+                            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            removeBtn.addEventListener('click', () => {
+                                removeSharedCalendarUser(userId);
+                            });
+
+                            userElement.appendChild(avatar);
+                            userElement.appendChild(name);
+                            userElement.appendChild(removeBtn);
+                            sharedUsersContainer.appendChild(userElement);
+                        }
+                    });
+            });
+        }
+
+        function removeSharedCalendarUser(userId) {
+            const index = sharedCalendarUsers.indexOf(userId);
+            if (index > -1) {
+                sharedCalendarUsers.splice(index, 1);
+                database.ref(`users/${currentUser.id}/sharedCalendar`).set(sharedCalendarUsers);
+                updateSharedCalendarUsersDisplay();
+                loadCalendarEvents();
+            }
+        }
+
+        // To-Do List Tool
+        let todoItems = [];
+        let sharedTodoUsers = [];
+        let editingTodoId = null;
+
+        function initializeTodoList() {
+            loadTodoItems();
+            loadSharedTodoUsers();
+        }
+
+        function loadTodoItems() {
+            database.ref(`users/${currentUser.id}/todoItems`).once('value')
+                .then(snapshot => {
+                    todoItems = snapshot.val() || [];
+                    renderTodoList();
+
+                    // Load todo items from shared users
+                    sharedTodoUsers.forEach(userId => {
+                        database.ref(`users/${userId}/todoItems`).once('value')
+                            .then(sharedSnapshot => {
+                                const sharedTodos = sharedSnapshot.val() || [];
+                                sharedTodos.forEach(todo => {
+                                    if (!todo.private) {
+                                        todoItems.push({
+                                            ...todo,
+                                            shared: true,
+                                            sharedBy: userId
+                                        });
+                                    }
+                                });
+                                renderTodoList();
+                            });
+                    });
+                });
+        }
+
+        function renderTodoList() {
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+
+            if (todoItems.length === 0) {
+                todoList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks yet</p>';
+                return;
+            }
+
+            todoItems.forEach((todo, index) => {
+                const todoItem = document.createElement('div');
+                todoItem.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'todo-checkbox';
+                checkbox.checked = todo.completed;
+                checkbox.addEventListener('change', () => {
+                    toggleTodoItem(todo.id);
+                });
+
+                const todoText = document.createElement('div');
+                todoText.className = 'todo-text';
+                todoText.textContent = todo.text;
+
+                const todoActions = document.createElement('div');
+                todoActions.className = 'todo-actions';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'todo-action';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.addEventListener('click', () => {
+                    editTodoItem(todo.id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'todo-action';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', () => {
+                    deleteTodoItem(todo.id);
+                });
+
+                todoActions.appendChild(editBtn);
+                todoActions.appendChild(deleteBtn);
+
+                todoItem.appendChild(checkbox);
+                todoItem.appendChild(todoText);
+                todoItem.appendChild(todoActions);
+                todoList.appendChild(todoItem);
+            });
+        }
+
+        function addTodoItem() {
+            const todoInput = document.getElementById('todoInput');
+            const text = todoInput.value.trim();
+
+            if (text === '') return;
+
+            const newTodo = {
+                id: Date.now().toString(),
+                text: text,
+                completed: false,
+                private: false,
+                createdAt: new Date().toISOString()
+            };
+
+            todoItems.push(newTodo);
+            todoInput.value = '';
+
+            database.ref(`users/${currentUser.id}/todoItems`).set(todoItems);
+            renderTodoList();
+
+            showToast('Task added successfully!', 'success');
+        }
+
+        function editTodoItem(todoId) {
+            // Find the todo item
+            const todo = todoItems.find(t => t.id === todoId);
+            if (!todo) return;
+
+            // Set editing flag
+            editingTodoId = todoId;
+
+            // Update input field
+            const todoInput = document.getElementById('todoInput');
+            todoInput.value = todo.text;
+            todoInput.focus();
+
+            // Change add button to update button
+            const addBtn = document.getElementById('addTodoBtn');
+            addBtn.innerHTML = '<i class="fas fa-save"></i>';
+            addBtn.removeEventListener('click', addTodoItem);
+            addBtn.addEventListener('click', updateTodoItem);
+        }
+
+        function updateTodoItem() {
+            const todoInput = document.getElementById('todoInput');
+            const text = todoInput.value.trim();
+
+            if (text === '') return;
+
+            // Find and update the todo item
+            const todoIndex = todoItems.findIndex(t => t.id === editingTodoId);
+            if (todoIndex !== -1) {
+                todoItems[todoIndex].text = text;
+            }
+
+            // Reset editing state
+            editingTodoId = null;
+            todoInput.value = '';
+
+            // Reset button
+            const addBtn = document.getElementById('addTodoBtn');
+            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            addBtn.removeEventListener('click', updateTodoItem);
+            addBtn.addEventListener('click', addTodoItem);
+
+            // Save and render
+            database.ref(`users/${currentUser.id}/todoItems`).set(todoItems);
+            renderTodoList();
+
+            showToast('Task updated successfully!', 'success');
+        }
+
+        function toggleTodoItem(todoId) {
+            const todo = todoItems.find(t => t.id === todoId);
+            if (!todo) return;
+
+            todo.completed = !todo.completed;
+            database.ref(`users/${currentUser.id}/todoItems`).set(todoItems);
+            renderTodoList();
+        }
+
+        function deleteTodoItem(todoId) {
+            const index = todoItems.findIndex(t => t.id === todoId);
+            if (index === -1) return;
+
+            todoItems.splice(index, 1);
+            database.ref(`users/${currentUser.id}/todoItems`).set(todoItems);
+            renderTodoList();
+
+            showToast('Task deleted successfully!', 'success');
+        }
+
+        function loadSharedTodoUsers() {
+            database.ref(`users/${currentUser.id}/sharedTodo`).once('value')
+                .then(snapshot => {
+                    const sharedUsers = snapshot.val() || [];
+                    sharedTodoUsers = sharedUsers;
+                    updateSharedTodoUsersDisplay();
+                    loadTodoItems(); // Reload todos with shared users
+                });
+        }
+
+        function updateSharedTodoUsersDisplay() {
+            const sharedUsersContainer = document.getElementById('todoSharedUsers');
+            sharedUsersContainer.innerHTML = '';
+
+            if (sharedTodoUsers.length === 0) {
+                sharedUsersContainer.innerHTML = '<p style="color: var(--text-light);">Not shared with anyone</p>';
+                return;
+            }
+
+            sharedTodoUsers.forEach(userId => {
+                database.ref(`users/${userId}`).once('value')
+                    .then(snapshot => {
+                        const user = snapshot.val();
+                        if (user) {
+                            const userElement = document.createElement('div');
+                            userElement.className = 'shared-user';
+
+                            const avatar = document.createElement('img');
+                            avatar.className = 'shared-user-avatar';
+                            avatar.src = `https://i.pravatar.cc/150?u=${user.username}`;
+
+                            const name = document.createElement('span');
+                            name.className = 'shared-user-name';
+                            name.textContent = user.name;
+
+                            const removeBtn = document.createElement('button');
+                            removeBtn.className = 'remove-shared-user';
+                            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            removeBtn.addEventListener('click', () => {
+                                removeSharedTodoUser(userId);
+                            });
+
+                            userElement.appendChild(avatar);
+                            userElement.appendChild(name);
+                            userElement.appendChild(removeBtn);
+                            sharedUsersContainer.appendChild(userElement);
+                        }
+                    });
+            });
+        }
+
+        function removeSharedTodoUser(userId) {
+            const index = sharedTodoUsers.indexOf(userId);
+            if (index > -1) {
+                sharedTodoUsers.splice(index, 1);
+                database.ref(`users/${currentUser.id}/sharedTodo`).set(sharedTodoUsers);
+                updateSharedTodoUsersDisplay();
+                loadTodoItems();
+            }
+        }
+
+        // Focus Timer Tool
+        let timerInterval = null;
+        let timerSeconds = 25 * 60; // Default 25 minutes
+        let timerRunning = false;
+
+        function initializeFocusTimer() {
+            updateTimerDisplay();
+            renderTimerPresets();
+        }
+
+        function renderTimerPresets() {
+            const presetsContainer = document.getElementById('timerPresets');
+            presetsContainer.innerHTML = '';
+
+            const defaultPresets = [
+                { minutes: 5, label: '5 min' },
+                { minutes: 10, label: '10 min' },
+                { minutes: 15, label: '15 min' },
+                { minutes: 25, label: '25 min' },
+                { minutes: 45, label: '45 min' }
+            ];
+
+            defaultPresets.forEach(preset => {
+                const btn = document.createElement('button');
+                btn.className = 'timer-preset';
+                btn.setAttribute('data-minutes', preset.minutes);
+                btn.textContent = preset.label;
+                btn.addEventListener('click', () => {
+                    setTimer(preset.minutes);
+                });
+                presetsContainer.appendChild(btn);
+            });
+
+            // Add custom preset button
+            const addPresetBtn = document.createElement('button');
+            addPresetBtn.className = 'timer-preset';
+            addPresetBtn.innerHTML = '<i class="fas fa-plus"></i> Custom';
+            addPresetBtn.style.background = 'var(--gradient-mint)';
+            addPresetBtn.addEventListener('click', () => {
+                showCustomTimerModal();
+            });
+            presetsContainer.appendChild(addPresetBtn);
+        }
+
+        function showCustomTimerModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Custom Timer';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const minutesGroup = document.createElement('div');
+            minutesGroup.className = 'form-group';
+
+            const minutesLabel = document.createElement('label');
+            minutesLabel.className = 'form-label';
+            minutesLabel.textContent = 'Minutes';
+
+            const minutesInput = document.createElement('input');
+            minutesInput.type = 'number';
+            minutesInput.className = 'form-input';
+            minutesInput.min = '1';
+            minutesInput.max = '180';
+            minutesInput.required = true;
+
+            minutesGroup.appendChild(minutesLabel);
+            minutesGroup.appendChild(minutesInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Set Timer';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(minutesGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const minutes = parseInt(minutesInput.value);
+                if (minutes > 0 && minutes <= 180) {
+                    setTimer(minutes);
+                    document.body.removeChild(modal);
+                    showToast(`Timer set to ${minutes} minutes`, 'success');
+                }
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent =
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (timerRunning) return;
+
+            timerRunning = true;
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    showToast('Timer completed!', 'Your focus session is over.', 'info');
+                    // Play a sound or vibrate if possible
+                    playTimerSound();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (!timerRunning) return;
+
+            clearInterval(timerInterval);
+            timerRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = 25 * 60; // Reset to default
+            updateTimerDisplay();
+        }
+
+        function setTimer(minutes) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = minutes * 60;
+            updateTimerDisplay();
+        }
+
+        function playTimerSound() {
+            // Create a simple beep sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Memory Aids Tool
+        let activeMemoryTab = 'flashcards';
+        let flashcards = [];
+        let mnemonics = [];
+        let mindmapNodes = [];
+
+        function initializeMemoryAids() {
+            loadMemoryAids();
+            renderMemoryContent();
+        }
+
+        function loadMemoryAids() {
+            database.ref(`users/${currentUser.id}/memoryAids`).once('value')
+                .then(snapshot => {
+                    const memoryAids = snapshot.val() || {};
+                    flashcards = memoryAids.flashcards || [];
+                    mnemonics = memoryAids.mnemonics || [];
+                    mindmapNodes = memoryAids.mindmap || [];
+                    renderMemoryContent();
+                });
+        }
+
+        function renderMemoryContent() {
+            const memoryContent = document.getElementById('memoryContent');
+            memoryContent.innerHTML = '';
+
+            if (activeMemoryTab === 'flashcards') {
+                renderFlashcards(memoryContent);
+            } else if (activeMemoryTab === 'mnemonics') {
+                renderMnemonics(memoryContent);
+            } else if (activeMemoryTab === 'mindmap') {
+                renderMindmap(memoryContent);
+            }
+        }
+
+        function renderFlashcards(container) {
+            if (flashcards.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-layer-group" style="font-size: 3rem; color: var(--text-light); margin-bottom: 15px;"></i>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">No flashcards yet</p>
+                        <button class="btn btn-primary" id="addFlashcardBtn"><i class="fas fa-plus"></i> Add Flashcard</button>
+                    </div>
+                `;
+
+                document.getElementById('addFlashcardBtn').addEventListener('click', () => {
+                    showAddFlashcardModal();
+                });
+
+                return;
+            }
+
+            const flashcardContainer = document.createElement('div');
+            flashcardContainer.style.display = 'flex';
+            flashcardContainer.style.flexDirection = 'column';
+            flashcardContainer.style.gap = '15px';
+
+            flashcards.forEach((flashcard, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+
+                const cardFront = document.createElement('div');
+                cardFront.className = 'memory-card-front';
+
+                const cardTitle = document.createElement('div');
+                cardTitle.className = 'memory-card-title';
+                cardTitle.textContent = flashcard.front;
+
+                const cardContent = document.createElement('div');
+                cardContent.className = 'memory-card-content';
+                cardContent.textContent = 'Click to reveal';
+
+                const cardActions = document.createElement('div');
+                cardActions.style.display = 'flex';
+                cardActions.style.justifyContent = 'flex-end';
+                cardActions.style.gap = '5px';
+                cardActions.style.marginTop = '10px';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-secondary';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    editFlashcard(flashcard.id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-secondary';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteFlashcard(flashcard.id);
+                });
+
+                cardActions.appendChild(editBtn);
+                cardActions.appendChild(deleteBtn);
+
+                cardFront.appendChild(cardTitle);
+                cardFront.appendChild(cardContent);
+                cardFront.appendChild(cardActions);
+                card.appendChild(cardFront);
+
+                card.addEventListener('click', () => {
+                    if (card.classList.contains('flipped')) {
+                        card.classList.remove('flipped');
+                        cardContent.textContent = 'Click to reveal';
+                    } else {
+                        card.classList.add('flipped');
+                        cardContent.textContent = flashcard.back;
+                    }
+                });
+
+                flashcardContainer.appendChild(card);
+            });
+
+            container.appendChild(flashcardContainer);
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn btn-primary';
+            addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Flashcard';
+            addBtn.style.marginTop = '15px';
+            addBtn.addEventListener('click', () => {
+                showAddFlashcardModal();
+            });
+
+            container.appendChild(addBtn);
+        }
+
+        function renderMnemonics(container) {
+            if (mnemonics.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-lightbulb" style="font-size: 3rem; color: var(--text-light); margin-bottom: 15px;"></i>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">No mnemonics yet</p>
+                        <button class="btn btn-primary" id="addMnemonicBtn"><i class="fas fa-plus"></i> Add Mnemonic</button>
+                    </div>
+                `;
+
+                document.getElementById('addMnemonicBtn').addEventListener('click', () => {
+                    showAddMnemonicModal();
+                });
+
+                return;
+            }
+
+            const mnemonicContainer = document.createElement('div');
+            mnemonicContainer.style.display = 'flex';
+            mnemonicContainer.style.flexDirection = 'column';
+            mnemonicContainer.style.gap = '15px';
+
+            mnemonics.forEach((mnemonic, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+
+                const cardTitle = document.createElement('div');
+                cardTitle.className = 'memory-card-title';
+                cardTitle.textContent = mnemonic.title;
+
+                const cardContent = document.createElement('div');
+                cardContent.className = 'memory-card-content';
+                cardContent.textContent = mnemonic.content;
+
+                const cardActions = document.createElement('div');
+                cardActions.style.display = 'flex';
+                cardActions.style.justifyContent = 'flex-end';
+                cardActions.style.gap = '5px';
+                cardActions.style.marginTop = '10px';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-secondary';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.addEventListener('click', () => {
+                    editMnemonic(mnemonic.id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-secondary';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', () => {
+                    deleteMnemonic(mnemonic.id);
+                });
+
+                cardActions.appendChild(editBtn);
+                cardActions.appendChild(deleteBtn);
+
+                card.appendChild(cardTitle);
+                card.appendChild(cardContent);
+                card.appendChild(cardActions);
+                mnemonicContainer.appendChild(card);
+            });
+
+            container.appendChild(mnemonicContainer);
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn btn-primary';
+            addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Mnemonic';
+            addBtn.style.marginTop = '15px';
+            addBtn.addEventListener('click', () => {
+                showAddMnemonicModal();
+            });
+
+            container.appendChild(addBtn);
+        }
+
+        function renderMindmap(container) {
+            if (mindmapNodes.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="fas fa-project-diagram" style="font-size: 3rem; color: var(--text-light); margin-bottom: 15px;"></i>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">No mind map yet</p>
+                        <button class="btn btn-primary" id="addMindmapNodeBtn"><i class="fas fa-plus"></i> Add Central Node</button>
+                    </div>
+                `;
+
+                document.getElementById('addMindmapNodeBtn').addEventListener('click', () => {
+                    showAddMindmapNodeModal(null);
+                });
+
+                return;
+            }
+
+            // Simple mind map visualization
+            const mindmapContainer = document.createElement('div');
+            mindmapContainer.style.position = 'relative';
+            mindmapContainer.style.height = '300px';
+            mindmapContainer.style.border = '1px solid #e0e0e0';
+            mindmapContainer.style.borderRadius = '8px';
+            mindmapContainer.style.overflow = 'hidden';
+
+            // Find central node
+            const centralNode = mindmapNodes.find(node => !node.parentId);
+
+            if (centralNode) {
+                // Draw central node
+                const centralNodeElement = document.createElement('div');
+                centralNodeElement.style.position = 'absolute';
+                centralNodeElement.style.top = '50%';
+                centralNodeElement.style.left = '50%';
+                centralNodeElement.style.transform = 'translate(-50%, -50%)';
+                centralNodeElement.style.padding = '10px 15px';
+                centralNodeElement.style.borderRadius = '8px';
+                centralNodeElement.style.background = 'var(--gradient-primary)';
+                centralNodeElement.style.color = 'white';
+                centralNodeElement.style.fontWeight = '500';
+                centralNodeElement.style.textAlign = 'center';
+                centralNodeElement.textContent = centralNode.text;
+                centralNodeElement.style.cursor = 'pointer';
+                centralNodeElement.addEventListener('click', () => {
+                    showAddMindmapNodeModal(centralNode.id);
+                });
+
+                mindmapContainer.appendChild(centralNodeElement);
+
+                // Draw child nodes
+                const childNodes = mindmapNodes.filter(node => node.parentId === centralNode.id);
+                const angleStep = 360 / childNodes.length;
+
+                childNodes.forEach((node, index) => {
+                    const angle = angleStep * index;
+                    const radius = 100;
+                    const x = 50 + radius * Math.cos(angle * Math.PI / 180);
+                    const y = 50 + radius * Math.sin(angle * Math.PI / 180);
+
+                    const nodeElement = document.createElement('div');
+                    nodeElement.style.position = 'absolute';
+                    nodeElement.style.top = `${y}%`;
+                    nodeElement.style.left = `${x}%`;
+                    nodeElement.style.transform = 'translate(-50%, -50%)';
+                    nodeElement.style.padding = '8px 12px';
+                    nodeElement.style.borderRadius = '8px';
+                    nodeElement.style.background = 'var(--gradient-cool)';
+                    nodeElement.style.color = 'white';
+                    nodeElement.style.fontSize = '0.9rem';
+                    nodeElement.style.textAlign = 'center';
+                    nodeElement.textContent = node.text;
+                    nodeElement.style.cursor = 'pointer';
+                    nodeElement.addEventListener('click', () => {
+                        showAddMindmapNodeModal(node.id);
+                    });
+
+                    // Draw connection line
+                    const line = document.createElement('div');
+                    line.style.position = 'absolute';
+                    line.style.top = '50%';
+                    line.style.left = '50%';
+                    line.style.width = `${radius}%`;
+                    line.style.height = '2px';
+                    line.style.background = '#e0e0e0';
+                    line.style.transformOrigin = '0 50%';
+                    line.style.transform = `rotate(${angle}deg)`;
+
+                    mindmapContainer.appendChild(line);
+                    mindmapContainer.appendChild(nodeElement);
+                });
+            }
+
+            container.appendChild(mindmapContainer);
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn btn-primary';
+            addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Node';
+            addBtn.style.marginTop = '15px';
+            addBtn.addEventListener('click', () => {
+                if (centralNode) {
+                    showAddMindmapNodeModal(centralNode.id);
+                } else {
+                    showAddMindmapNodeModal(null);
+                }
+            });
+
+            container.appendChild(addBtn);
+        }
+
+        function showAddFlashcardModal() {
+            // Create a simple modal for adding flashcards
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Add Flashcard';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const frontGroup = document.createElement('div');
+            frontGroup.className = 'form-group';
+
+            const frontLabel = document.createElement('label');
+            frontLabel.className = 'form-label';
+            frontLabel.textContent = 'Front';
+
+            const frontInput = document.createElement('input');
+            frontInput.type = 'text';
+            frontInput.className = 'form-input';
+            frontInput.id = 'flashcardFront';
+            frontInput.required = true;
+
+            frontGroup.appendChild(frontLabel);
+            frontGroup.appendChild(frontInput);
+
+            const backGroup = document.createElement('div');
+            backGroup.className = 'form-group';
+
+            const backLabel = document.createElement('label');
+            backLabel.className = 'form-label';
+            backLabel.textContent = 'Back';
+
+            const backInput = document.createElement('input');
+            backInput.type = 'text';
+            backInput.className = 'form-input';
+            backInput.id = 'flashcardBack';
+            backInput.required = true;
+
+            backGroup.appendChild(backLabel);
+            backGroup.appendChild(backInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Save';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(frontGroup);
+            form.appendChild(backGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const front = frontInput.value.trim();
+                const back = backInput.value.trim();
+
+                if (front === '' || back === '') return;
+
+                const newFlashcard = {
+                    id: Date.now().toString(),
+                    front: front,
+                    back: back,
+                    createdAt: new Date().toISOString()
+                };
+
+                flashcards.push(newFlashcard);
+                saveMemoryAids();
+                renderMemoryContent();
+
+                document.body.removeChild(modal);
+                showToast('Flashcard added successfully!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function editFlashcard(flashcardId) {
+            const flashcard = flashcards.find(f => f.id === flashcardId);
+            if (!flashcard) return;
+
+            // Create a simple modal for editing flashcards
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Edit Flashcard';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const frontGroup = document.createElement('div');
+            frontGroup.className = 'form-group';
+
+            const frontLabel = document.createElement('label');
+            frontLabel.className = 'form-label';
+            frontLabel.textContent = 'Front';
+
+            const frontInput = document.createElement('input');
+            frontInput.type = 'text';
+            frontInput.className = 'form-input';
+            frontInput.id = 'flashcardFront';
+            frontInput.value = flashcard.front;
+            frontInput.required = true;
+
+            frontGroup.appendChild(frontLabel);
+            frontGroup.appendChild(frontInput);
+
+            const backGroup = document.createElement('div');
+            backGroup.className = 'form-group';
+
+            const backLabel = document.createElement('label');
+            backLabel.className = 'form-label';
+            backLabel.textContent = 'Back';
+
+            const backInput = document.createElement('input');
+            backInput.type = 'text';
+            backInput.className = 'form-input';
+            backInput.id = 'flashcardBack';
+            backInput.value = flashcard.back;
+            backInput.required = true;
+
+            backGroup.appendChild(backLabel);
+            backGroup.appendChild(backInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Save';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(frontGroup);
+            form.appendChild(backGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const front = frontInput.value.trim();
+                const back = backInput.value.trim();
+
+                if (front === '' || back === '') return;
+
+                // Update flashcard
+                const index = flashcards.findIndex(f => f.id === flashcardId);
+                if (index !== -1) {
+                    flashcards[index].front = front;
+                    flashcards[index].back = back;
+                }
+
+                saveMemoryAids();
+                renderMemoryContent();
+
+                document.body.removeChild(modal);
+                showToast('Flashcard updated successfully!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function deleteFlashcard(flashcardId) {
+            const index = flashcards.findIndex(f => f.id === flashcardId);
+            if (index === -1) return;
+
+            flashcards.splice(index, 1);
+            saveMemoryAids();
+            renderMemoryContent();
+
+            showToast('Flashcard deleted successfully!', 'success');
+        }
+
+        function showAddMnemonicModal() {
+            // Create a simple modal for adding mnemonics
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Add Mnemonic';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const titleGroup = document.createElement('div');
+            titleGroup.className = 'form-group';
+
+            const titleLabel = document.createElement('label');
+            titleLabel.className = 'form-label';
+            titleLabel.textContent = 'Title';
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.className = 'form-input';
+            titleInput.id = 'mnemonicTitle';
+            titleInput.required = true;
+
+            titleGroup.appendChild(titleLabel);
+            titleGroup.appendChild(titleInput);
+
+            const contentGroup = document.createElement('div');
+            contentGroup.className = 'form-group';
+
+            const contentLabel = document.createElement('label');
+            contentLabel.className = 'form-label';
+            contentLabel.textContent = 'Content';
+
+            const contentInput = document.createElement('textarea');
+            contentInput.className = 'form-textarea';
+            contentInput.id = 'mnemonicContent';
+            contentInput.required = true;
+
+            contentGroup.appendChild(contentLabel);
+            contentGroup.appendChild(contentInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Save';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(titleGroup);
+            form.appendChild(contentGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const title = titleInput.value.trim();
+                const content = contentInput.value.trim();
+
+                if (title === '' || content === '') return;
+
+                const newMnemonic = {
+                    id: Date.now().toString(),
+                    title: title,
+                    content: content,
+                    createdAt: new Date().toISOString()
+                };
+
+                mnemonics.push(newMnemonic);
+                saveMemoryAids();
+                renderMemoryContent();
+
+                document.body.removeChild(modal);
+                showToast('Mnemonic added successfully!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function editMnemonic(mnemonicId) {
+            const mnemonic = mnemonics.find(m => m.id === mnemonicId);
+            if (!mnemonic) return;
+
+            // Create a simple modal for editing mnemonics
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Edit Mnemonic';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const titleGroup = document.createElement('div');
+            titleGroup.className = 'form-group';
+
+            const titleLabel = document.createElement('label');
+            titleLabel.className = 'form-label';
+            titleLabel.textContent = 'Title';
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.className = 'form-input';
+            titleInput.id = 'mnemonicTitle';
+            titleInput.value = mnemonic.title;
+            titleInput.required = true;
+
+            titleGroup.appendChild(titleLabel);
+            titleGroup.appendChild(titleInput);
+
+            const contentGroup = document.createElement('div');
+            contentGroup.className = 'form-group';
+
+            const contentLabel = document.createElement('label');
+            contentLabel.className = 'form-label';
+            contentLabel.textContent = 'Content';
+
+            const contentInput = document.createElement('textarea');
+            contentInput.className = 'form-textarea';
+            contentInput.id = 'mnemonicContent';
+            contentInput.value = mnemonic.content;
+            contentInput.required = true;
+
+            contentGroup.appendChild(contentLabel);
+            contentGroup.appendChild(contentInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(titleGroup);
+            form.appendChild(contentGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const title = titleInput.value.trim();
+                const content = contentInput.value.trim();
+
+                if (title === '' || content === '') return;
+
+                // Update mnemonic
+                const index = mnemonics.findIndex(m => m.id === mnemonicId);
+                if (index !== -1) {
+                    mnemonics[index].title = title;
+                    mnemonics[index].content = content;
+                }
+
+                saveMemoryAids();
+                renderMemoryContent();
+
+                document.body.removeChild(modal);
+                showToast('Mnemonic updated successfully!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function deleteMnemonic(mnemonicId) {
+            const index = mnemonics.findIndex(m => m.id === mnemonicId);
+            if (index === -1) return;
+
+            mnemonics.splice(index, 1);
+            saveMemoryAids();
+            renderMemoryContent();
+
+            showToast('Mnemonic deleted successfully!', 'success');
+        }
+
+        function showAddMindmapNodeModal(parentId) {
+            // Create a simple modal for adding mind map nodes
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = parentId ? 'Add Child Node' : 'Add Central Node';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const textGroup = document.createElement('div');
+            textGroup.className = 'form-group';
+
+            const textLabel = document.createElement('label');
+            textLabel.className = 'form-label';
+            textLabel.textContent = 'Node Text';
+
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.className = 'form-input';
+            textInput.id = 'mindmapNodeText';
+            textInput.required = true;
+
+            textGroup.appendChild(textLabel);
+            textGroup.appendChild(textInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Save';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(textGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const text = textInput.value.trim();
+
+                if (text === '') return;
+
+                const newNode = {
+                    id: Date.now().toString(),
+                    text: text,
+                    parentId: parentId,
+                    createdAt: new Date().toISOString()
+                };
+
+                mindmapNodes.push(newNode);
+                saveMemoryAids();
+                renderMemoryContent();
+
+                document.body.removeChild(modal);
+                showToast('Node added successfully!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function saveMemoryAids() {
+            database.ref(`users/${currentUser.id}/memoryAids`).set({
+                flashcards: flashcards,
+                mnemonics: mnemonics,
+                mindmap: mindmapNodes
+            });
+        }
+
+        // Quick Notes Tool
+        let notes = [];
+
+        function initializeQuickNotes() {
+            loadNotes();
+        }
+
+        function loadNotes() {
+            database.ref(`users/${currentUser.id}/quickNotes`).once('value')
+                .then(snapshot => {
+                    notes = snapshot.val() || [];
+                    renderNotesList();
+                });
+        }
+
+        function saveNote() {
+            const notesInput = document.getElementById('notesInput');
+            const content = notesInput.value.trim();
+
+            if (content === '') return;
+
+            const newNote = {
+                id: Date.now().toString(),
+                content: content,
+                createdAt: new Date().toISOString()
+            };
+
+            notes.unshift(newNote); // Add to beginning of array
+            notesInput.value = '';
+
+            database.ref(`users/${currentUser.id}/quickNotes`).set(notes);
+            renderNotesList();
+
+            // Show success message
+            showToast('Note saved successfully!', 'success');
+        }
+
+        function editNote(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            const notesInput = document.getElementById('notesInput');
+            notesInput.value = note.content;
+            notesInput.focus();
+
+            // Change save button to update button
+            const saveBtn = document.getElementById('saveNotesBtn');
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Update';
+            saveBtn.removeEventListener('click', saveNote);
+            saveBtn.addEventListener('click', () => {
+                updateNote(noteId);
+            });
+        }
+
+        function updateNote(noteId) {
+            const notesInput = document.getElementById('notesInput');
+            const content = notesInput.value.trim();
+
+            if (content === '') return;
+
+            // Find and update the note
+            const index = notes.findIndex(n => n.id === noteId);
+            if (index !== -1) {
+                notes[index].content = content;
+                notes[index].updatedAt = new Date().toISOString();
+            }
+
+            // Reset button
+            const saveBtn = document.getElementById('saveNotesBtn');
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+            saveBtn.removeEventListener('click', updateNote);
+            saveBtn.addEventListener('click', saveNote);
+
+            // Save and render
+            database.ref(`users/${currentUser.id}/quickNotes`).set(notes);
+            renderNotesList();
+
+            // Clear input
+            notesInput.value = '';
+
+            showToast('Note updated successfully!', 'success');
+        }
+
+        function deleteNote(noteId) {
+            const index = notes.findIndex(n => n.id === noteId);
+            if (index === -1) return;
+
+            notes.splice(index, 1);
+            database.ref(`users/${currentUser.id}/quickNotes`).set(notes);
+            renderNotesList();
+
+            showToast('Note deleted successfully!', 'success');
+        }
+
+        function renderNotesList() {
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = '';
+
+            if (notes.length === 0) {
+                notesList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No notes yet</p>';
+                return;
+            }
+
+            notes.slice(0, 5).forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+
+                const noteContent = document.createElement('div');
+                noteContent.className = 'note-content';
+                noteContent.textContent = note.content;
+                noteContent.style.cursor = 'pointer';
+                noteContent.addEventListener('click', () => {
+                    editNote(note.id);
+                });
+
+                const noteDate = document.createElement('div');
+                noteDate.className = 'note-date';
+                noteDate.textContent = new Date(note.createdAt).toLocaleDateString();
+
+                const noteActions = document.createElement('div');
+                noteActions.className = 'note-actions';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'note-action';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.addEventListener('click', () => {
+                    editNote(note.id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'note-action';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', () => {
+                    deleteNote(note.id);
+                });
+
+                noteActions.appendChild(editBtn);
+                noteActions.appendChild(deleteBtn);
+
+                noteItem.appendChild(noteContent);
+                noteItem.appendChild(noteDate);
+                noteItem.appendChild(noteActions);
+                notesList.appendChild(noteItem);
+            });
+        }
+
+        // Progress Tracker Tool
+        let progressTrackers = [];
+
+        function initializeProgressTracker() {
+            loadProgressTrackers();
+        }
+
+        function loadProgressTrackers() {
+            database.ref(`users/${currentUser.id}/progressTrackers`).once('value')
+                .then(snapshot => {
+                    progressTrackers = snapshot.val() || [];
+                    if (progressTrackers.length > 0) {
+                        renderProgressTimeline(progressTrackers[progressTrackers.length - 1]);
+                    }
+                });
+        }
+
+        function setupProgressTracker() {
+            const title = document.getElementById('progressTitle').value.trim();
+            const tasksCount = parseInt(document.getElementById('progressTasks').value);
+
+            if (title === '' || isNaN(tasksCount) || tasksCount <= 0) {
+                showToast('Please enter a valid title and number of tasks.', 'error');
+                return;
+            }
+
+            const newTracker = {
+                id: Date.now().toString(),
+                title: title,
+                totalTasks: tasksCount,
+                completedTasks: 0,
+                tasks: Array.from({ length: tasksCount }, (_, i) => ({
+                    id: i.toString(),
+                    title: `Task ${i + 1}`,
+                    completed: false
+                })),
+                createdAt: new Date().toISOString()
+            };
+
+            progressTrackers.push(newTracker);
+
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+
+            // Clear form
+            document.getElementById('progressTitle').value = '';
+            document.getElementById('progressTasks').value = '';
+
+            renderProgressTimeline(newTracker);
+            showToast('Progress tracker created successfully!', 'success');
+        }
+
+        function renderProgressTimeline(tracker) {
+            const timeline = document.getElementById('progressTimeline');
+            timeline.innerHTML = '';
+
+            if (!tracker) {
+                timeline.innerHTML = '<p style="text-align: center; color: var(--text-light);">No progress tracker set up yet</p>';
+                return;
+            }
+
+            // Add title with edit/delete buttons
+            const titleContainer = document.createElement('div');
+            titleContainer.style.display = 'flex';
+            titleContainer.style.justifyContent = 'space-between';
+            titleContainer.style.alignItems = 'center';
+            titleContainer.style.marginBottom = '15px';
+
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = tracker.title;
+
+            const titleActions = document.createElement('div');
+            titleActions.style.display = 'flex';
+            titleActions.style.gap = '5px';
+
+            const editTitleBtn = document.createElement('button');
+            editTitleBtn.className = 'btn btn-secondary';
+            editTitleBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editTitleBtn.style.padding = '5px 10px';
+            editTitleBtn.addEventListener('click', () => {
+                editProgressTracker(tracker.id);
+            });
+
+            const deleteTrackerBtn = document.createElement('button');
+            deleteTrackerBtn.className = 'btn btn-secondary';
+            deleteTrackerBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteTrackerBtn.style.padding = '5px 10px';
+            deleteTrackerBtn.addEventListener('click', () => {
+                deleteProgressTracker(tracker.id);
+            });
+
+            titleActions.appendChild(editTitleBtn);
+            titleActions.appendChild(deleteTrackerBtn);
+            titleContainer.appendChild(titleElement);
+            titleContainer.appendChild(titleActions);
+            timeline.appendChild(titleContainer);
+
+            // Add progress bar
+            const progressBarContainer = document.createElement('div');
+            progressBarContainer.style.width = '100%';
+            progressBarContainer.style.height = '10px';
+            progressBarContainer.style.backgroundColor = '#e0e0e0';
+            progressBarContainer.style.borderRadius = '5px';
+            progressBarContainer.style.marginBottom = '15px';
+            progressBarContainer.style.overflow = 'hidden';
+
+            const progressBar = document.createElement('div');
+            progressBar.style.width = `${(tracker.completedTasks / tracker.totalTasks) * 100}%`;
+            progressBar.style.height = '100%';
+            progressBar.style.backgroundColor = 'var(--gradient-aurora)';
+            progressBar.style.transition = 'width 0.3s ease';
+
+            progressBarContainer.appendChild(progressBar);
+            timeline.appendChild(progressBarContainer);
+
+            // Add tasks
+            tracker.tasks.forEach((task, index) => {
+                const progressItem = document.createElement('div');
+                progressItem.className = `progress-item ${task.completed ? 'completed' : ''}`;
+
+                const progressMarker = document.createElement('div');
+                progressMarker.className = `progress-marker ${task.completed ? 'completed' : ''}`;
+                progressMarker.textContent = index + 1;
+                progressMarker.style.cursor = 'pointer';
+                progressMarker.addEventListener('click', () => {
+                    toggleTaskCompletion(tracker.id, task.id);
+                });
+
+                const progressLine = document.createElement('div');
+                progressLine.className = `progress-line ${task.completed ? 'completed' : ''}`;
+
+                const progressText = document.createElement('div');
+                progressText.className = 'progress-text';
+                progressText.textContent = task.title;
+                progressText.style.cursor = 'pointer';
+                progressText.style.flexGrow = '1';
+                progressText.addEventListener('click', () => {
+                    editTaskTitle(tracker.id, task.id);
+                });
+
+                const taskActions = document.createElement('div');
+                taskActions.style.display = 'flex';
+                taskActions.style.gap = '5px';
+
+                const deleteTaskBtn = document.createElement('button');
+                deleteTaskBtn.className = 'btn btn-secondary';
+                deleteTaskBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteTaskBtn.style.padding = '2px 5px';
+                deleteTaskBtn.style.fontSize = '0.8rem';
+                deleteTaskBtn.addEventListener('click', () => {
+                    deleteTask(tracker.id, task.id);
+                });
+
+                taskActions.appendChild(deleteTaskBtn);
+
+                progressItem.appendChild(progressMarker);
+                if (index < tracker.tasks.length - 1) {
+                    progressItem.appendChild(progressLine);
+                }
+                progressItem.appendChild(progressText);
+                progressItem.appendChild(taskActions);
+
+                timeline.appendChild(progressItem);
+            });
+
+            // Add add task button
+            const addTaskBtn = document.createElement('button');
+            addTaskBtn.className = 'btn btn-primary';
+            addTaskBtn.innerHTML = '<i class="fas fa-plus"></i> Add Task';
+            addTaskBtn.style.marginTop = '10px';
+            addTaskBtn.addEventListener('click', () => {
+                addTaskToTracker(tracker.id);
+            });
+            timeline.appendChild(addTaskBtn);
+        }
+
+        function editProgressTracker(trackerId) {
+            const tracker = progressTrackers.find(t => t.id === trackerId);
+            if (!tracker) return;
+
+            // Create modal for editing tracker
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+
+            const modalTitle = document.createElement('h3');
+            modalTitle.className = 'modal-title';
+            modalTitle.textContent = 'Edit Progress Tracker';
+
+            const modalClose = document.createElement('button');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '<i class="fas fa-times"></i>';
+            modalClose.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            modalHeader.appendChild(modalTitle);
+            modalHeader.appendChild(modalClose);
+
+            const form = document.createElement('form');
+
+            const titleGroup = document.createElement('div');
+            titleGroup.className = 'form-group';
+
+            const titleLabel = document.createElement('label');
+            titleLabel.className = 'form-label';
+            titleLabel.textContent = 'Title';
+
+            const titleInput = document.createElement('input');
+            titleInput.type = 'text';
+            titleInput.className = 'form-input';
+            titleInput.value = tracker.title;
+            titleInput.required = true;
+
+            titleGroup.appendChild(titleLabel);
+            titleGroup.appendChild(titleInput);
+
+            const formActions = document.createElement('div');
+            formActions.className = 'form-actions';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'btn btn-secondary';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'submit';
+            saveBtn.className = 'btn btn-primary';
+            saveBtn.textContent = 'Save';
+
+            formActions.appendChild(cancelBtn);
+            formActions.appendChild(saveBtn);
+
+            form.appendChild(titleGroup);
+            form.appendChild(formActions);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const newTitle = titleInput.value.trim();
+                if (newTitle === '') return;
+
+                // Update tracker
+                const index = progressTrackers.findIndex(t => t.id === trackerId);
+                if (index !== -1) {
+                    progressTrackers[index].title = newTitle;
+                }
+
+                database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+                renderProgressTimeline(progressTrackers[index]);
+
+                document.body.removeChild(modal);
+                showToast('Progress tracker updated!', 'success');
+            });
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(form);
+            modal.appendChild(modalContent);
+
+            document.body.appendChild(modal);
+        }
+
+        function deleteProgressTracker(trackerId) {
+            if (!confirm('Are you sure you want to delete this progress tracker?')) return;
+
+            const index = progressTrackers.findIndex(t => t.id === trackerId);
+            if (index === -1) return;
+
+            progressTrackers.splice(index, 1);
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+
+            // Clear the timeline if no trackers left
+            if (progressTrackers.length === 0) {
+                document.getElementById('progressTimeline').innerHTML = '<p style="text-align: center; color: var(--text-light);">No progress tracker set up yet</p>';
+            } else {
+                renderProgressTimeline(progressTrackers[progressTrackers.length - 1]);
+            }
+
+            showToast('Progress tracker deleted!', 'success');
+        }
+
+        function editTaskTitle(trackerId, taskId) {
+            const tracker = progressTrackers.find(t => t.id === trackerId);
+            if (!tracker) return;
+
+            const task = tracker.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const newTitle = prompt('Edit task title:', task.title);
+            if (newTitle && newTitle.trim() !== '') {
+                updateTaskTitle(trackerId, taskId, newTitle.trim());
+            }
+        }
+
+        function deleteTask(trackerId, taskId) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+
+            const trackerIndex = progressTrackers.findIndex(t => t.id === trackerId);
+            if (trackerIndex === -1) return;
+
+            const taskIndex = progressTrackers[trackerIndex].tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+
+            progressTrackers[trackerIndex].tasks.splice(taskIndex, 1);
+            progressTrackers[trackerIndex].totalTasks--;
+            progressTrackers[trackerIndex].completedTasks = progressTrackers[trackerIndex].tasks.filter(t => t.completed).length;
+
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+            renderProgressTimeline(progressTrackers[trackerIndex]);
+
+            showToast('Task deleted!', 'success');
+        }
+
+        function addTaskToTracker(trackerId) {
+            const tracker = progressTrackers.find(t => t.id === trackerId);
+            if (!tracker) return;
+
+            const taskTitle = prompt('Enter new task title:');
+            if (!taskTitle || taskTitle.trim() === '') return;
+
+            const newTask = {
+                id: Date.now().toString(),
+                title: taskTitle.trim(),
+                completed: false
+            };
+
+            const trackerIndex = progressTrackers.findIndex(t => t.id === trackerId);
+            if (trackerIndex !== -1) {
+                progressTrackers[trackerIndex].tasks.push(newTask);
+                progressTrackers[trackerIndex].totalTasks++;
+            }
+
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+            renderProgressTimeline(progressTrackers[trackerIndex]);
+
+            showToast('Task added!', 'success');
+        }
+
+        function toggleTaskCompletion(trackerId, taskId) {
+            const trackerIndex = progressTrackers.findIndex(t => t.id === trackerId);
+            if (trackerIndex === -1) return;
+
+            const taskIndex = progressTrackers[trackerIndex].tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+
+            progressTrackers[trackerIndex].tasks[taskIndex].completed = !progressTrackers[trackerIndex].tasks[taskIndex].completed;
+
+            // Update completed tasks count
+            progressTrackers[trackerIndex].completedTasks = progressTrackers[trackerIndex].tasks.filter(t => t.completed).length;
+
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+            renderProgressTimeline(progressTrackers[trackerIndex]);
+        }
+
+        function updateTaskTitle(trackerId, taskId, newTitle) {
+            const trackerIndex = progressTrackers.findIndex(t => t.id === trackerId);
+            if (trackerIndex === -1) return;
+
+            const taskIndex = progressTrackers[trackerIndex].tasks.findIndex(t => t.id === taskId);
+            if (taskIndex === -1) return;
+
+            progressTrackers[trackerIndex].tasks[taskIndex].title = newTitle;
+
+            database.ref(`users/${currentUser.id}/progressTrackers`).set(progressTrackers);
+            renderProgressTimeline(progressTrackers[trackerIndex]);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            mobileMenuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            document.querySelector('.main-content').addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Calendar event listeners
+            document.getElementById('prevMonthBtn').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar();
+            });
+
+            document.getElementById('nextMonthBtn').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar();
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                const today = new Date();
+                currentMonth = today.getMonth();
+                currentYear = today.getFullYear();
+                renderCalendar();
+            });
+
+            document.getElementById('addEventBtn').addEventListener('click', () => {
+                // Reset editing state
+                editingEventId = null;
+
+                // Update modal title
+                document.getElementById('eventModalTitle').textContent = 'Add Event';
+
+                // Reset form
+                document.getElementById('eventForm').reset();
+
+                // Set default date to selected date or today
+                const dateInput = document.getElementById('eventDate');
+                if (selectedDate) {
+                    const [year, month, day] = selectedDate.split('-').map(Number);
+                    dateInput.value = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                } else {
+                    const today = new Date();
+                    dateInput.value = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+                }
+
+                // Show modal
+                document.getElementById('eventModal').classList.add('active');
+            });
+
+            document.getElementById('closeEventModal').addEventListener('click', () => {
+                document.getElementById('eventModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelEventBtn').addEventListener('click', () => {
+                document.getElementById('eventModal').classList.remove('active');
+            });
+
+            document.getElementById('eventForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById('eventTitle').value;
+                const date = document.getElementById('eventDate').value;
+                const type = document.getElementById('eventType').value;
+                const description = document.getElementById('eventDescription').value;
+                const isPrivate = document.getElementById('eventPrivate').checked;
+
+                const eventData = {
+                    title: title,
+                    date: date,
+                    type: type,
+                    description: description,
+                    private: isPrivate,
+                    createdAt: new Date().toISOString()
+                };
+
+                if (editingEventId) {
+                    eventData.id = editingEventId;
+                }
+
+                saveEvent(eventData);
+            });
+
+            // Share calendar event listeners
+            document.getElementById('shareCalendarBtn').addEventListener('click', () => {
+                document.getElementById('shareCalendarModal').classList.add('active');
+            });
+
+            document.getElementById('closeShareCalendarModal').addEventListener('click', () => {
+                document.getElementById('shareCalendarModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelShareCalendarBtn').addEventListener('click', () => {
+                document.getElementById('shareCalendarModal').classList.remove('active');
+            });
+
+            document.getElementById('saveShareCalendarBtn').addEventListener('click', () => {
+                database.ref(`users/${currentUser.id}/sharedCalendar`).set(sharedCalendarUsers);
+                document.getElementById('shareCalendarModal').classList.remove('active');
+                showToast('Calendar shared successfully!', 'success');
+            });
+
+            document.getElementById('calendarFriendSearch').addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                if (query === '') {
+                    document.getElementById('calendarFriendSearchResults').innerHTML = '';
+                    return;
+                }
+
+                searchFriends(query, 'calendar');
+            });
+
+            // To-do list event listeners
+            document.getElementById('addTodoBtn').addEventListener('click', addTodoItem);
+
+            document.getElementById('todoInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodoItem();
+                }
+            });
+
+            // Share todo event listeners
+            document.getElementById('shareTodoBtn').addEventListener('click', () => {
+                document.getElementById('shareTodoModal').classList.add('active');
+            });
+
+            document.getElementById('closeShareTodoModal').addEventListener('click', () => {
+                document.getElementById('shareTodoModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelShareTodoBtn').addEventListener('click', () => {
+                document.getElementById('shareTodoModal').classList.remove('active');
+            });
+
+            document.getElementById('saveShareTodoBtn').addEventListener('click', () => {
+                database.ref(`users/${currentUser.id}/sharedTodo`).set(sharedTodoUsers);
+                document.getElementById('shareTodoModal').classList.remove('active');
+                showToast('To-do list shared successfully!', 'success');
+            });
+
+            document.getElementById('todoFriendSearch').addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                if (query === '') {
+                    document.getElementById('todoFriendSearchResults').innerHTML = '';
+                    return;
+                }
+
+                searchFriends(query, 'todo');
+            });
+
+            // Focus timer event listeners
+            document.getElementById('startTimerBtn').addEventListener('click', startTimer);
+            document.getElementById('pauseTimerBtn').addEventListener('click', pauseTimer);
+            document.getElementById('resetTimerBtn').addEventListener('click', resetTimer);
+
+            // Memory aids event listeners
+            document.querySelectorAll('.memory-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.memory-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeMemoryTab = btn.getAttribute('data-tab');
+                    renderMemoryContent();
+                });
+            });
+
+            // Quick notes event listeners
+            document.getElementById('saveNotesBtn').addEventListener('click', saveNote);
+
+            document.getElementById('clearNotesBtn').addEventListener('click', () => {
+                document.getElementById('notesInput').value = '';
+            });
+
+            // Progress tracker event listeners
+            document.getElementById('setupProgressBtn').addEventListener('click', setupProgressTracker);
+
+            // Excel Timetable event listeners
+            document.getElementById('updateTimetableBtn').addEventListener('click', updateTimetableSize);
+            document.getElementById('clearTimetableBtn').addEventListener('click', clearTimetable);
+            document.getElementById('exportTimetableBtn').addEventListener('click', exportTimetable);
+
+            // Handle dimension input changes
+            document.getElementById('timetableRows').addEventListener('change', (e) => {
+                const value = parseInt(e.target.value);
+                if (value > 0 && value <= 100) {
+                    timetableRows = value;
+                }
+            });
+
+            document.getElementById('timetableCols').addEventListener('change', (e) => {
+                const value = parseInt(e.target.value);
+                if (value > 0 && value <= 100) {
+                    timetableCols = value;
+                }
+            });
+
+            // Toast close button
+            document.getElementById('toastClose').addEventListener('click', () => {
+                document.getElementById('toast').classList.remove('show');
+            });
+
+            // Keyboard shortcuts for Excel Timetable
+            document.addEventListener('keydown', (e) => {
+                if (isEditing && currentEditCell) {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const { row, col } = currentEditCell;
+                        let nextRow = row;
+                        let nextCol = col;
+
+                        if (e.shiftKey) {
+                            // Move to previous cell
+                            nextCol--;
+                            if (nextCol < 1) {
+                                nextCol = timetableCols - 1;
+                                nextRow--;
+                                if (nextRow < 0) {
+                                    nextRow = timetableRows - 1;
+                                    nextCol = timetableCols - 1;
+                                }
+                            }
+                        } else {
+                            // Move to next cell
+                            nextCol++;
+                            if (nextCol >= timetableCols) {
+                                nextCol = 1;
+                                nextRow++;
+                                if (nextRow >= timetableRows) {
+                                    nextRow = 0;
+                                    nextCol = 1;
+                                }
+                            }
+                        }
+
+                        const nextCell = document.querySelector(`td[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                        if (nextCell) {
+                            // Save current cell
+                            const input = currentEditCell.cell.querySelector('input');
+                            if (input) {
+                                const newValue = input.value;
+                                if (!timetableData[row]) {
+                                    timetableData[row] = [];
+                                }
+                                timetableData[row][col] = newValue;
+                                saveTimetableData();
+                            }
+
+                            // Move to next cell
+                            currentEditCell.cell.classList.remove('editing');
+                            startEditCell(nextCell, nextRow, nextCol);
+                        }
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        const { row, col } = currentEditCell;
+                        let nextRow = row;
+                        let nextCol = col;
+
+                        switch (e.key) {
+                            case 'ArrowUp':
+                                nextRow = Math.max(0, row - 1);
+                                break;
+                            case 'ArrowDown':
+                                nextRow = Math.min(timetableRows - 1, row + 1);
+                                break;
+                            case 'ArrowLeft':
+                                nextCol = Math.max(1, col - 1);
+                                break;
+                            case 'ArrowRight':
+                                nextCol = Math.min(timetableCols - 1, col + 1);
+                                break;
+                        }
+
+                        const nextCell = document.querySelector(`td[data-row="${nextRow}"][data-col="${nextCol}"]`);
+                        if (nextCell) {
+                            // Save current cell
+                            const input = currentEditCell.cell.querySelector('input');
+                            if (input) {
+                                const newValue = input.value;
+                                if (!timetableData[row]) {
+                                    timetableData[row] = [];
+                                }
+                                timetableData[row][col] = newValue;
+                                saveTimetableData();
+                            }
+
+                            // Move to next cell
+                            currentEditCell.cell.classList.remove('editing');
+                            startEditCell(nextCell, nextRow, nextCol);
+                        }
+                    }
+                }
+            });
+        }
+
+        function searchFriends(query, context) {
+            database.ref('users').orderByChild('username').startAt(query).endAt(query + '\uf8ff').once('value')
+                .then(snapshot => {
+                    const results = [];
+                    snapshot.forEach(childSnapshot => {
+                        const user = childSnapshot.val();
+                        if (user.id !== currentUser.id) {
+                            results.push({
+                                id: childSnapshot.key,
+                                ...user
+                            });
+                        }
+                    });
+
+                    const resultsContainer = document.getElementById(
+                        context === 'calendar' ? 'calendarFriendSearchResults' : 'todoFriendSearchResults'
+                    );
+                    resultsContainer.innerHTML = '';
+
+                    if (results.length === 0) {
+                        resultsContainer.innerHTML = '<p style="color: var(--text-light);">No users found</p>';
+                        return;
+                    }
+
+                    results.forEach(user => {
+                        const userElement = document.createElement('div');
+                        userElement.className = 'friend-item';
+
+                        const avatar = document.createElement('img');
+                        avatar.className = 'friend-avatar';
+                        avatar.src = `https://i.pravatar.cc/150?u=${user.username}`;
+
+                        const userInfo = document.createElement('div');
+                        userInfo.className = 'friend-info';
+
+                        const userName = document.createElement('div');
+                        userName.className = 'friend-name';
+                        userName.textContent = user.name;
+
+                        const userUsername = document.createElement('div');
+                        userUsername.className = 'friend-username';
+                        userUsername.textContent = `@${user.username}`;
+
+                        userInfo.appendChild(userName);
+                        userInfo.appendChild(userUsername);
+
+                        userElement.appendChild(avatar);
+                        userElement.appendChild(userInfo);
+
+                        userElement.addEventListener('click', () => {
+                            if (context === 'calendar') {
+                                if (!sharedCalendarUsers.includes(user.id)) {
+                                    sharedCalendarUsers.push(user.id);
+                                    updateSharedCalendarUsersDisplay();
+                                }
+                            } else if (context === 'todo') {
+                                if (!sharedTodoUsers.includes(user.id)) {
+                                    sharedTodoUsers.push(user.id);
+                                    updateSharedTodoUsersDisplay();
+                                }
+                            }
+
+                            resultsContainer.innerHTML = '';
+                        });
+
+                        resultsContainer.appendChild(userElement);
+                    });
+                });
+        }
+
+        // Initialize the app
+        window.onload = checkAuthState;
+    </script>
+</body>
+
+</html>

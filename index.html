@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindset - Login</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #FFBB94 0%, #FB9590 100%);
+            --accent-color: #FFBB94;
+            --text-dark: #1D1A39;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .login-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 420px;
+            height: fit-content;
+            max-height: 90vh;
+            overflow: hidden;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            padding-top: 40px;
+        }
+
+        .tagline {
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .form-toggle {
+            display: flex;
+            background-color: var(--bg-light);
+            border-radius: 50px;
+            padding: 5px;
+            margin: 0 40px 30px;
+        }
+
+        .form-toggle button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 50px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-toggle button.active {
+            background: var(--white);
+            color: var(--text-dark);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            padding: 0 40px 40px;
+            max-height: calc(90vh - 200px);
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 187, 148, 0.2);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent-gradient);
+            color: var(--white);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 149, 144, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .form-footer {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .form-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .form-toggle {
+                margin: 0 20px 30px;
+            }
+
+            .form-container {
+                padding: 0 20px 40px;
+            }
+
+            .logo {
+                font-size: 2rem;
+                padding-top: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="login-container">
+        <h1 class="logo">Mindset</h1>
+        <p class="tagline">Collaborate. Learn. Grow.</p>
+
+        <div class="form-toggle">
+            <button id="loginBtn" class="active" onclick="toggleForm('login')">Login</button>
+            <button id="registerBtn" onclick="toggleForm('register')">Register</button>
+        </div>
+
+        <!-- Error Message Display -->
+        <div id="errorMessage" class="error-message"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="form-container">
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="loginUsername" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <span id="loginBtnText">Login to Mindset</span>
+                    <div id="loginSpinner" class="loading-spinner"></div>
+                </button>
+            </form>
+            <div class="form-footer">
+                <a href="#">Forgot your password?</a>
+            </div>
+        </div>
+
+        <!-- Register Form (Initially Hidden) -->
+        <div id="registerForm" class="form-container" style="display: none;">
+            <form id="registerFormElement">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="registerName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <span id="registerBtnText">Create Account</span>
+                    <div id="registerSpinner" class="loading-spinner"></div>
+                </button>
+            </form>
+            <div class="form-footer">
+                Already have an account? <a href="#" onclick="toggleForm('login')">Login</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-a6qP2kDNCdVv0zRl2AQYJ3QTNe18cYA",
+            authDomain: "mindset-94cb1.firebaseapp.com",
+            projectId: "mindset-94cb1",
+            storageBucket: "mindset-94cb1.firebasestorage.app",
+            messagingSenderId: "1070543818778",
+            appId: "1:1070543818778:web:39414a72999678399ac1a3",
+            databaseURL: "https://mindset-94cb1-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Auto-login check using localStorage
+        window.onload = function () {
+            const user = localStorage.getItem('mindsetUser');
+            if (user) {
+                window.location.href = 'dashboard.html';
+            }
+        };
+
+        // Toggle between Login and Register forms
+        function toggleForm(formType) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+
+            if (formType === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginBtn.classList.add('active');
+                registerBtn.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                loginBtn.classList.remove('active');
+                registerBtn.classList.add('active');
+            }
+        }
+
+        // Display error message
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show loading state
+        function showLoading(formType) {
+            if (formType === 'login') {
+                document.getElementById('loginBtnText').style.display = 'none';
+                document.getElementById('loginSpinner').style.display = 'block';
+            } else {
+                document.getElementById('registerBtnText').style.display = 'none';
+                document.getElementById('registerSpinner').style.display = 'block';
+            }
+        }
+
+        // Hide loading state
+        function hideLoading(formType) {
+            if (formType === 'login') {
+                document.getElementById('loginBtnText').style.display = 'inline';
+                document.getElementById('loginSpinner').style.display = 'none';
+            } else {
+                document.getElementById('registerBtnText').style.display = 'inline';
+                document.getElementById('registerSpinner').style.display = 'none';
+            }
+        }
+
+        // Handle Login Form Submission
+        document.getElementById('loginFormElement').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            showLoading('login');
+
+            // Query the database to find the user by username
+            database.ref('users').orderByChild('username').equalTo(username).once('value')
+                .then(snapshot => {
+                    hideLoading('login');
+                    if (snapshot.exists()) {
+                        // User found, now check password
+                        snapshot.forEach(childSnapshot => {
+                            const userData = childSnapshot.val();
+                            if (userData.password === password) {
+                                // Password matches, store user info and redirect
+                                const userSession = {
+                                    id: childSnapshot.key,
+                                    name: userData.name,
+                                    username: userData.username
+                                };
+                                localStorage.setItem('mindsetUser', JSON.stringify(userSession));
+                                window.location.href = 'dashboard.html';
+                            } else {
+                                showError('Invalid username or password.');
+                            }
+                        });
+                    } else {
+                        showError('Invalid username or password.');
+                    }
+                })
+                .catch(error => {
+                    hideLoading('login');
+                    showError('Login failed: ' + error.message);
+                });
+        });
+
+        // Handle Register Form Submission
+        document.getElementById('registerFormElement').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value.trim();
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match.');
+                return;
+            }
+
+            showLoading('register');
+
+            // Check if username already exists
+            database.ref('users').orderByChild('username').equalTo(username).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        hideLoading('register');
+                        showError('Username is already taken.');
+                    } else {
+                        // Username is available, create new user
+                        const newUser = {
+                            name: name,
+                            username: username,
+                            password: password // WARNING: Storing password in plain text is insecure!
+                        };
+
+                        database.ref('users').push(newUser)
+                            .then(() => {
+                                hideLoading('register');
+                                // After successful registration, log the user in
+                                const userSession = {
+                                    // We can't get the ID easily here without another query, so we'll handle login after redirect
+                                    name: name,
+                                    username: username
+                                };
+                                // A better way is to get the new user's key, but for simplicity, we'll just set a flag
+                                localStorage.setItem('mindsetUserTemp', JSON.stringify(userSession));
+                                window.location.href = 'dashboard.html';
+                            })
+                            .catch(error => {
+                                hideLoading('register');
+                                showError('Registration failed: ' + error.message);
+                            });
+                    }
+                })
+                .catch(error => {
+                    hideLoading('register');
+                    showError('Error checking username: ' + error.message);
+                });
+        });
+    </script>
+</body>
+
+</html>

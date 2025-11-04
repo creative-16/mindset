@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindset - Benches</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root {
+            /* Professional Gradient Palette */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-sunset: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-ocean: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --gradient-aurora: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --gradient-mint: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+            --gradient-coral: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            --gradient-lavender: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            --gradient-peach: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            --gradient-sky: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            --gradient-forest: linear-gradient(135deg, #0ba360 0%, #3cba92 100%);
+            --gradient-berry: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            --gradient-fire: linear-gradient(135deg, #f83600 0%, #f9d423 100%);
+            --gradient-ocean2: linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%);
+            --gradient-sun: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%);
+            --gradient-rose: linear-gradient(135deg, #EE9CA7 0%, #FFDDE1 100%);
+
+            --accent-color: #FFBB94;
+            --text-dark: #1D1A39;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --sidebar-bg: #1a1d29;
+            --sidebar-text: #8892b0;
+            --sidebar-active: #64ffda;
+            --shadow-light: 0 10px 20px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar - Icons Only */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 20px 0;
+            color: var(--sidebar-text);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-white);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--gradient-primary);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .sidebar nav li {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: rgba(100, 255, 218, 0.1);
+            color: var(--sidebar-active);
+        }
+
+        .sidebar nav a i {
+            font-size: 1.4rem;
+        }
+
+        .sidebar nav a .tooltip {
+            position: absolute;
+            left: 70px;
+            background: var(--sidebar-bg);
+            color: var(--bg-white);
+            padding: 8px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .sidebar nav a:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 25px 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: none;
+            border-radius: 50px;
+            background: var(--bg-white);
+            box-shadow: var(--shadow-light);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .date-display {
+            background: var(--bg-white);
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .date-display:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Bench Actions */
+        .bench-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .bench-actions.hidden {
+            display: none;
+        }
+
+        .action-btn {
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+
+        /* Bench View Container */
+        .bench-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        /* Bench List View */
+        .bench-list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+        }
+
+        .benches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .bench-card {
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bench-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .bench-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: #1a1a2e;
+            /* Dark blue-black color */
+            font-weight: 700;
+        }
+
+        .bench-card p {
+            color: #2d2d44;
+            /* Dark slate color */
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            font-weight: 500;
+        }
+
+        .bench-card .bench-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bench-card .member-count {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #2d2d44;
+            /* Dark slate color */
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .bench-card .online-members {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .bench-card .online-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #4ade80;
+            margin-right: -8px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .bench-card .online-avatar:first-child {
+            margin-right: 0;
+        }
+
+        .bench-card .online-avatar:hover {
+            transform: scale(1.1);
+            z-index: 1;
+        }
+
+        .bench-card .online-count {
+            margin-left: 10px;
+            font-size: 0.85rem;
+            color: #2d2d44;
+            /* Dark slate color */
+            font-weight: 600;
+        }
+
+        /* Bench Detail View */
+        .bench-detail-view {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .bench-header {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 20px 25px;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bench-header h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+        }
+
+        .bench-header .bench-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bench-header .member-count {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-light);
+        }
+
+        .bench-header .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #4ade80;
+            font-weight: 500;
+        }
+
+        .bench-header .close-btn {
+            background: var(--gradient-warm);
+            color: var(--bg-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bench-header .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .bench-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .bench-info {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-medium);
+            overflow-y: auto;
+        }
+
+        .bench-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .bench-info p {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        .share-code {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .share-code h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .share-code .code {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gradient-primary);
+            margin-bottom: 10px;
+        }
+
+        .share-btn {
+            background: var(--gradient-cool);
+            color: var(--bg-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .members-section {
+            margin-top: 20px;
+        }
+
+        .members-section h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .member-info {
+            flex-grow: 1;
+        }
+
+        .member-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .member-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .member-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+
+        .member-status.offline {
+            background: #94a3b8;
+        }
+
+        /* Chat Section */
+        .chat-section {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 450px;
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-heavy);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-header .online-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .chat-header .chat-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-header .chat-control-btn {
+            background: none;
+            border: none;
+            color: var(--bg-white);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-header .chat-control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-message.own {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message-bubble {
+            background: var(--bg-light);
+            padding: 10px 15px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .chat-message.own .message-bubble {
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .chat-message.own .message-time {
+            text-align: right;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--gradient-primary);
+        }
+
+        .chat-input button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Chat Toggle Button */
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-heavy);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-toggle i {
+            font-size: 1.5rem;
+        }
+
+        .chat-toggle .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: var(--gradient-warm);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-heavy);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--gradient-primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--gradient-aurora);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-medium);
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.error {
+            background: var(--gradient-warm);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--sidebar-bg);
+            color: var(--bg-white);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--gradient-primary);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                height: 100vh;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .bench-content {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-section {
+                width: 100%;
+                height: 100%;
+                top: 0;
+                right: 0;
+                bottom: auto;
+                border-radius: 0;
+            }
+
+            .chat-toggle {
+                bottom: 80px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="app-container">
+        <!-- Left Sidebar - Icons Only -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo"><i class="fas fa-chalkboard-teacher"></i></div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-home"></i><span class="tooltip">Dashboard</span></a>
+                    </li>
+                    <li><a href="#" class="active"><i class="fas fa-book-open"></i><span
+                                class="tooltip">Benches</span></a></li>
+                    <li><a href="learn.html"><i class="fas fa-graduation-cap"></i><span class="tooltip">Learn</span></a>
+                    </li>
+                    <li><a href="chat.html"><i class="fas fa-comments"></i><span class="tooltip">Chat</span></a></li>
+                    <li><a href="tools.html"><i class="fas fa-tools"></i><span class="tooltip">Tools</span></a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i><span class="tooltip">Settings</span></a></li>
+                    <li><a href="profile.html"><i class="fas fa-user-circle"></i><span
+                                class="tooltip">Profile</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header with Search and Date -->
+            <div class="dashboard-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="search" placeholder="Search for benches...">
+                </div>
+                <div class="date-display" id="dateDisplay">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Bench Actions -->
+            <div class="bench-actions" id="benchActions">
+                <button class="action-btn" id="createBenchBtn">
+                    <i class="fas fa-plus"></i> Create Bench
+                </button>
+                <button class="action-btn" id="joinBenchBtn">
+                    <i class="fas fa-sign-in-alt"></i> Join Bench
+                </button>
+            </div>
+
+            <!-- Bench View Container -->
+            <div class="bench-view-container">
+                <!-- Bench List View -->
+                <div class="bench-list-view" id="benchListView">
+                    <div class="benches-grid" id="benchesList">
+                        <!-- Bench cards will be injected by JS from Firebase -->
+                    </div>
+                </div>
+
+                <!-- Bench Detail View -->
+                <div class="bench-detail-view" id="benchDetailView">
+                    <div class="bench-header">
+                        <h2 id="benchName">Bench Name</h2>
+                        <div class="bench-meta">
+                            <div class="member-count">
+                                <i class="fas fa-users"></i>
+                                <span id="memberCount">0</span> members
+                            </div>
+                            <div class="online-indicator">
+                                <i class="fas fa-circle"></i>
+                                <span id="onlineCount">0</span> online
+                            </div>
+                            <button class="close-btn" id="closeBenchBtn">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bench-content">
+                        <div class="bench-info">
+                            <h3>Bench Information</h3>
+                            <p id="benchDescription">Description</p>
+
+                            <div class="share-code">
+                                <h4>Share Code</h4>
+                                <div class="code" id="shareCode">XXXXXX</div>
+                                <button class="share-btn" id="copyCodeBtn">
+                                    <i class="fas fa-copy"></i> Copy Code
+                                </button>
+                            </div>
+
+                            <div class="members-section">
+                                <h4>Members</h4>
+                                <div class="member-list" id="membersList">
+                                    <!-- Members will be loaded from Firebase -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chat Toggle Button -->
+    <button class="chat-toggle" id="chatToggle">
+        <i class="fas fa-comments"></i>
+        <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+    </button>
+
+    <!-- Chat Section -->
+    <div class="chat-section" id="chatSection">
+        <div class="chat-header">
+            <h3 id="chatTitle">Group Chat</h3>
+            <div class="online-indicator">
+                <i class="fas fa-circle"></i>
+                <span id="chatOnlineCount">0</span> online
+            </div>
+            <div class="chat-controls">
+                <button class="chat-control-btn" id="minimizeChatBtn">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="chat-control-btn" id="closeChatBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Chat messages will be loaded from Firebase -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Create Bench Modal -->
+    <div class="modal" id="createBenchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Bench</h3>
+                <button class="modal-close" id="closeCreateModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="benchNameInput">Bench Name</label>
+                    <input type="text" id="benchNameInput" placeholder="Enter bench name">
+                </div>
+                <div class="form-group">
+                    <label for="benchDescInput">Description (Optional)</label>
+                    <textarea id="benchDescInput" placeholder="Enter bench description"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelCreateBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmCreateBtn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Bench Modal -->
+    <div class="modal" id="joinBenchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Join a Bench</h3>
+                <button class="modal-close" id="closeJoinModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="benchCodeInput">Bench Code</label>
+                    <input type="text" id="benchCodeInput" placeholder="Enter 8-character code">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelJoinBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmJoinBtn">Join</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-a6qP2kDNCdVv0zRl2AQYJ3QTNe18cYA",
+            authDomain: "mindset-94cb1.firebaseapp.com",
+            projectId: "mindset-94cb1",
+            storageBucket: "mindset-94cb1.firebasestorage.app",
+            messagingSenderId: "1070543818778",
+            appId: "1:1070543818778:web:39414a72999678399ac1a3",
+            databaseURL: "https://mindset-94cb1-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let currentUser = null;
+        let currentBench = null;
+        let chatListener = null;
+        let unreadMessages = 0;
+
+        // Gradient options for bench cards
+        const gradientOptions = [
+            'var(--gradient-primary)',
+            'var(--gradient-warm)',
+            'var(--gradient-cool)',
+            'var(--gradient-sunset)',
+            'var(--gradient-ocean)',
+            'var(--gradient-aurora)',
+            'var(--gradient-purple)',
+            'var(--gradient-mint)',
+            'var(--gradient-coral)',
+            'var(--gradient-lavender)',
+            'var(--gradient-peach)',
+            'var(--gradient-sky)',
+            'var(--gradient-forest)',
+            'var(--gradient-berry)',
+            'var(--gradient-fire)',
+            'var(--gradient-ocean2)',
+            'var(--gradient-sun)',
+            'var(--gradient-rose)'
+        ];
+
+        // Check authentication state
+        function checkAuthState() {
+            const userSession = JSON.parse(localStorage.getItem('mindsetUser'));
+            if (!userSession) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (!userSession.id) {
+                database.ref('users').orderByChild('username').equalTo(userSession.username).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            userSession.id = childSnapshot.key;
+                            localStorage.setItem('mindsetUser', JSON.stringify(userSession));
+                            currentUser = userSession;
+                            initializeBenches();
+                        });
+                    } else {
+                        localStorage.removeItem('mindsetUser');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                currentUser = userSession;
+                initializeBenches();
+            }
+        }
+
+        // Initialize benches page
+        function initializeBenches() {
+            updateDate();
+            loadBenches();
+            setupEventListeners();
+            setupChatListeners();
+        }
+
+        // Update date display
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Load benches from Firebase
+        function loadBenches() {
+            const benchesList = document.getElementById('benchesList');
+            benchesList.innerHTML = '<p style="text-align:center; color: var(--text-light);">Loading benches...</p>';
+
+            database.ref('benches').orderByChild('members/' + currentUser.id).equalTo(true).once('value')
+                .then(snapshot => {
+                    benchesList.innerHTML = '';
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            const bench = childSnapshot.val();
+                            const benchId = childSnapshot.key;
+                            const memberCount = bench.members ? Object.keys(bench.members).length : 0;
+
+                            // Assign a random gradient if not already assigned
+                            const gradientClass = bench.gradientClass || gradientOptions[Math.floor(Math.random() * gradientOptions.length)];
+
+                            // Save the gradient class to Firebase if not already saved
+                            if (!bench.gradientClass) {
+                                database.ref(`benches/${benchId}/gradientClass`).set(gradientClass);
+                            }
+
+                            const card = document.createElement('div');
+                            card.className = 'bench-card';
+                            card.style.background = gradientClass;
+                            card.innerHTML = `
+                                <h3>${bench.name}</h3>
+                                <p>${bench.description || 'No description available'}</p>
+                                <div class="bench-meta">
+                                    <div class="member-count">
+                                        <i class="fas fa-users"></i>
+                                        <span>${memberCount}</span> members
+                                    </div>
+                                </div>
+                                <div class="online-members" id="online-members-${benchId}">
+                                    <!-- Online members will be loaded here -->
+                                </div>
+                            `;
+
+                            // Make the entire card clickable
+                            card.addEventListener('click', () => {
+                                openBench(benchId);
+                            });
+
+                            benchesList.appendChild(card);
+
+                            // Load online members for this bench
+                            loadOnlineMembers(benchId);
+                        });
+                    } else {
+                        benchesList.innerHTML = '<p style="text-align:center; color: var(--text-light);">No benches joined yet. Create or join a bench to get started!</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading benches:", error);
+                    benchesList.innerHTML = '<p style="text-align:center; color: red;">Error loading benches.</p>';
+                });
+        }
+
+        // Load online members for a bench
+        function loadOnlineMembers(benchId) {
+            const onlineMembersContainer = document.getElementById(`online-members-${benchId}`);
+
+            database.ref('benches').child(benchId).child('members').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const members = snapshot.val();
+                        const memberIds = Object.keys(members);
+                        let onlineCount = 0;
+                        let onlineHtml = '';
+
+                        // Limit to showing max 3 avatars
+                        const maxAvatars = Math.min(3, memberIds.length);
+
+                        memberIds.slice(0, maxAvatars).forEach(userId => {
+                            // Check if user is online (in a real app, you'd have a more sophisticated system)
+                            const isOnline = Math.random() > 0.5; // Random for demo
+
+                            if (isOnline) {
+                                onlineCount++;
+
+                                // Get user info
+                                database.ref('users').child(userId).once('value')
+                                    .then(userSnapshot => {
+                                        if (userSnapshot.exists()) {
+                                            const user = userSnapshot.val();
+                                            onlineHtml += `<img src="https://i.pravatar.cc/150?u=${user.username}" alt="${user.name}" class="online-avatar" title="${user.name}">`;
+
+                                            if (onlineHtml.length > 0) {
+                                                onlineMembersContainer.innerHTML = onlineHtml;
+                                            }
+                                        }
+                                    });
+                            }
+                        });
+
+                        // Show online count if there are more online members than displayed
+                        if (onlineCount > maxAvatars) {
+                            onlineHtml += `<div class="online-count">+${onlineCount - maxAvatars} more</div>`;
+                        }
+
+                        if (onlineHtml.length > 0) {
+                            onlineMembersContainer.innerHTML = onlineHtml;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading online members:", error);
+                });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Create Bench Modal
+            document.getElementById('createBenchBtn').addEventListener('click', () => {
+                document.getElementById('createBenchModal').classList.add('active');
+            });
+
+            document.getElementById('closeCreateModal').addEventListener('click', () => {
+                document.getElementById('createBenchModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelCreateBtn').addEventListener('click', () => {
+                document.getElementById('createBenchModal').classList.remove('active');
+            });
+
+            document.getElementById('confirmCreateBtn').addEventListener('click', createBench);
+
+            // Join Bench Modal
+            document.getElementById('joinBenchBtn').addEventListener('click', () => {
+                document.getElementById('joinBenchModal').classList.add('active');
+            });
+
+            document.getElementById('closeJoinModal').addEventListener('click', () => {
+                document.getElementById('joinBenchModal').classList.remove('active');
+            });
+
+            document.getElementById('cancelJoinBtn').addEventListener('click', () => {
+                document.getElementById('joinBenchModal').classList.remove('active');
+            });
+
+            document.getElementById('confirmJoinBtn').addEventListener('click', joinBench);
+
+            // Close Bench Detail View
+            document.getElementById('closeBenchBtn').addEventListener('click', closeBenchDetail);
+
+            // Copy Share Code
+            document.getElementById('copyCodeBtn').addEventListener('click', copyShareCode);
+
+            // Mobile Menu Toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            mobileMenuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            document.querySelector('.main-content').addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Setup chat listeners
+        function setupChatListeners() {
+            // Chat toggle
+            document.getElementById('chatToggle').addEventListener('click', () => {
+                if (currentBench) {
+                    openChatForBench();
+                } else {
+                    showNotification('Please select a bench first to open chat', 'error');
+                }
+            });
+
+            // Minimize chat
+            document.getElementById('minimizeChatBtn').addEventListener('click', () => {
+                document.getElementById('chatSection').classList.remove('active');
+            });
+
+            // Close chat
+            document.getElementById('closeChatBtn').addEventListener('click', () => {
+                document.getElementById('chatSection').classList.remove('active');
+                if (chatListener) {
+                    chatListener.off();
+                    chatListener = null;
+                }
+                currentBench = null;
+            });
+
+            // Send message
+            document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        // Create a new bench
+        function createBench() {
+            const benchName = document.getElementById('benchNameInput').value.trim();
+            const benchDesc = document.getElementById('benchDescInput').value.trim();
+
+            if (!benchName) {
+                showNotification('Please enter a bench name', 'error');
+                return;
+            }
+
+            // Generate unique 8-character alphanumeric code
+            const shareCode = generateShareCode();
+
+            // Assign a random gradient
+            const gradientClass = gradientOptions[Math.floor(Math.random() * gradientOptions.length)];
+
+            // Create bench in Firebase
+            const newBenchRef = database.ref('benches').push();
+            const benchId = newBenchRef.key;
+
+            newBenchRef.set({
+                name: benchName,
+                description: benchDesc,
+                createdBy: currentUser.id,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                members: {
+                    [currentUser.id]: true
+                },
+                shareCode: shareCode,
+                gradientClass: gradientClass
+            })
+                .then(() => {
+                    // Clear form and close modal
+                    document.getElementById('benchNameInput').value = '';
+                    document.getElementById('benchDescInput').value = '';
+                    document.getElementById('createBenchModal').classList.remove('active');
+
+                    // Reload benches
+                    loadBenches();
+
+                    // Show success message
+                    showNotification('Bench created successfully! Share code: ' + shareCode);
+                })
+                .catch(error => {
+                    console.error("Error creating bench:", error);
+                    showNotification('Error creating bench. Please try again.', 'error');
+                });
+        }
+
+        // Generate unique 8-character alphanumeric code
+        function generateShareCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Join a bench using share code
+        function joinBench() {
+            const benchCode = document.getElementById('benchCodeInput').value.trim().toUpperCase();
+
+            if (!benchCode) {
+                showNotification('Please enter a bench code', 'error');
+                return;
+            }
+
+            // Find bench with this share code
+            database.ref('benches').orderByChild('shareCode').equalTo(benchCode).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            const benchId = childSnapshot.key;
+                            const bench = childSnapshot.val();
+
+                            // Check if user is already a member
+                            if (bench.members && bench.members[currentUser.id]) {
+                                showNotification('You are already a member of this bench.', 'error');
+                                return;
+                            }
+
+                            // Add current user to bench members
+                            database.ref(`benches/${benchId}/members/${currentUser.id}`).set(true)
+                                .then(() => {
+                                    // Clear form and close modal
+                                    document.getElementById('benchCodeInput').value = '';
+                                    document.getElementById('joinBenchModal').classList.remove('active');
+
+                                    // Reload benches
+                                    loadBenches();
+
+                                    // Show success message
+                                    showNotification('Joined bench successfully!');
+                                })
+                                .catch(error => {
+                                    console.error("Error joining bench:", error);
+                                    showNotification('Error joining bench. Please try again.', 'error');
+                                });
+                        });
+                    } else {
+                        showNotification('Invalid bench code. Please check and try again.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error finding bench:", error);
+                    showNotification('Error finding bench. Please try again.', 'error');
+                });
+        }
+
+        // Open a bench
+        function openBench(benchId) {
+            // Hide bench actions buttons
+            document.getElementById('benchActions').classList.add('hidden');
+
+            // Get bench details
+            database.ref(`benches/${benchId}`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        currentBench = {
+                            id: benchId,
+                            ...snapshot.val()
+                        };
+
+                        // Show bench detail view
+                        document.getElementById('benchListView').style.display = 'none';
+                        document.getElementById('benchDetailView').style.display = 'flex';
+
+                        // Update bench header
+                        document.getElementById('benchName').textContent = currentBench.name;
+                        document.getElementById('benchDescription').textContent = currentBench.description || 'No description available';
+                        document.getElementById('shareCode').textContent = currentBench.shareCode;
+
+                        const memberCount = currentBench.members ? Object.keys(currentBench.members).length : 0;
+                        document.getElementById('memberCount').textContent = memberCount;
+
+                        // Load members
+                        loadBenchMembers();
+
+                        // Open chat for this bench
+                        openChatForBench();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error opening bench:", error);
+                    showNotification('Error opening bench. Please try again.', 'error');
+                });
+        }
+
+        // Close bench detail view
+        function closeBenchDetail() {
+            // Show bench actions buttons
+            document.getElementById('benchActions').classList.remove('hidden');
+
+            // Show bench list view
+            document.getElementById('benchListView').style.display = 'flex';
+            document.getElementById('benchDetailView').style.display = 'none';
+
+            // Stop chat listener
+            if (chatListener) {
+                chatListener.off();
+                chatListener = null;
+            }
+
+            // Close chat
+            document.getElementById('chatSection').classList.remove('active');
+
+            // Clear chat
+            document.getElementById('chatMessages').innerHTML = '';
+
+            // Reset current bench
+            currentBench = null;
+        }
+
+        // Load bench members
+        function loadBenchMembers() {
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '<p>Loading members...</p>';
+
+            if (currentBench.members) {
+                membersList.innerHTML = '';
+                const memberPromises = [];
+                let onlineCount = 0;
+
+                Object.keys(currentBench.members).forEach(userId => {
+                    memberPromises.push(
+                        database.ref(`users/${userId}`).once('value')
+                            .then(userSnapshot => {
+                                if (userSnapshot.exists()) {
+                                    const user = userSnapshot.val();
+                                    const isCreator = userId === currentBench.createdBy;
+                                    const isCurrentUser = userId === currentUser.id;
+                                    // Check if user is online (in a real app, you'd have a more sophisticated system)
+                                    const isOnline = Math.random() > 0.5; // Random for demo
+
+                                    if (isOnline) onlineCount++;
+
+                                    const memberItem = document.createElement('div');
+                                    memberItem.className = 'member-item';
+                                    memberItem.innerHTML = `
+                                        <img src="https://i.pravatar.cc/150?u=${user.username}" alt="${user.name}" class="member-avatar">
+                                        <div class="member-info">
+                                            <div class="member-name">${user.name} ${isCurrentUser ? '(You)' : ''}</div>
+                                            <div class="member-role">${isCreator ? 'Creator' : 'Member'}</div>
+                                        </div>
+                                        <div class="member-status ${isOnline ? '' : 'offline'}"></div>
+                                    `;
+                                    membersList.appendChild(memberItem);
+                                }
+                            })
+                    );
+                });
+
+                Promise.all(memberPromises).then(() => {
+                    // Update online count
+                    document.getElementById('onlineCount').textContent = onlineCount;
+                }).catch(error => {
+                    console.error("Error loading members:", error);
+                    membersList.innerHTML = '<p>Error loading members.</p>';
+                });
+            } else {
+                membersList.innerHTML = '<p>No members found.</p>';
+            }
+        }
+
+        // Open chat for a bench
+        function openChatForBench() {
+            // Update chat title
+            document.getElementById('chatTitle').textContent = currentBench.name;
+
+            // Clear existing messages
+            document.getElementById('chatMessages').innerHTML = '';
+
+            // Show chat section
+            document.getElementById('chatSection').classList.add('active');
+
+            // Stop previous listener if exists
+            if (chatListener) {
+                chatListener.off();
+            }
+
+            // Listen for new messages
+            chatListener = database.ref(`benches/${currentBench.id}/chat`).orderByChild('timestamp').limitToLast(50);
+
+            chatListener.on('child_added', snapshot => {
+                const message = snapshot.val();
+                displayMessage(message);
+
+                // If chat is minimized, increment unread count
+                if (!document.getElementById('chatSection').classList.contains('active')) {
+                    unreadMessages++;
+                    document.getElementById('notificationBadge').textContent = unreadMessages > 99 ? '99+' : unreadMessages;
+                    document.getElementById('notificationBadge').style.display = 'flex';
+                }
+            });
+        }
+
+        // Display a chat message
+        function displayMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+
+            // Get user info
+            database.ref(`users/${message.userId}`).once('value')
+                .then(userSnapshot => {
+                    if (userSnapshot.exists()) {
+                        const user = userSnapshot.val();
+                        const isOwnMessage = message.userId === currentUser.id;
+
+                        const messageElement = document.createElement('div');
+                        messageElement.className = `chat-message ${isOwnMessage ? 'own' : ''}`;
+
+                        const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        messageElement.innerHTML = `
+                            <img src="https://i.pravatar.cc/150?u=${user.username}" alt="${user.name}" class="message-avatar">
+                            <div class="message-content">
+                                <div class="message-bubble">
+                                    <div class="message-text">${message.text}</div>
+                                </div>
+                                <div class="message-time">${time}</div>
+                            </div>
+                        `;
+
+                        chatMessages.appendChild(messageElement);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                });
+        }
+
+        // Send a chat message
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
+
+            if (!messageText || !currentBench) return;
+
+            const message = {
+                userId: currentUser.id,
+                text: messageText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            database.ref(`benches/${currentBench.id}/chat`).push(message)
+                .then(() => {
+                    messageInput.value = '';
+                })
+                .catch(error => {
+                    console.error("Error sending message:", error);
+                    showNotification('Error sending message. Please try again.', 'error');
+                });
+        }
+
+        // Copy share code to clipboard
+        function copyShareCode() {
+            const shareCode = document.getElementById('shareCode').textContent;
+            navigator.clipboard.writeText(shareCode)
+                .then(() => {
+                    showNotification('Share code copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Could not copy text: ', err);
+                    showNotification('Error copying code. Please try again.', 'error');
+                });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Initialize the page
+        window.onload = checkAuthState;
+    </script>
+</body>
+
+</html>

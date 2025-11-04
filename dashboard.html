@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindset - Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            /* Professional Gradient Palette */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-sunset: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-ocean: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+            --gradient-aurora: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-purple: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            --accent-color: #FFBB94;
+            --text-dark: #1D1A39;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --sidebar-bg: #1a1d29;
+            --sidebar-text: #8892b0;
+            --sidebar-active: #64ffda;
+            --shadow-light: 0 10px 20px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            background: var(--sidebar-bg);
+            padding: 30px 25px;
+            color: var(--sidebar-text);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--bg-white);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .sidebar nav li {
+            margin-bottom: 8px;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 13px 18px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: rgba(100, 255, 218, 0.1);
+            color: var(--sidebar-active);
+            transform: translateX(5px);
+        }
+
+        .sidebar nav a i {
+            font-size: 1.2rem;
+            width: 25px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            padding: 25px 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: none;
+            border-radius: 50px;
+            background: var(--bg-white);
+            box-shadow: var(--shadow-light);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .date-display {
+            background: var(--bg-white);
+            padding: 12px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow-light);
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .date-display:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow-medium);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .welcome-banner h1 {
+            font-size: 2.2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content Grid for Benches and Lessons */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
+        .content-section {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+            height: 450px;
+            /* FIXED SIZE */
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .view-all-btn {
+            background: var(--gradient-primary);
+            color: var(--bg-white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            /* 3 fixed-size cards */
+            gap: 15px;
+            overflow: hidden;
+            /* NO SCROLLING */
+            flex-grow: 1;
+        }
+
+        /* Gradient Cards */
+        .gradient-card {
+            border-radius: var(--border-radius);
+            padding: 20px;
+            color: var(--bg-white);
+            box-shadow: var(--shadow-medium);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            height: 100px;
+            /* FIXED SIZE */
+        }
+
+        .gradient-card:hover {
+            filter: brightness(1.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .gradient-card.warm {
+            background: var(--gradient-warm);
+        }
+
+        .gradient-card.cool {
+            background: var(--gradient-cool);
+        }
+
+        .gradient-card.sunset {
+            background: var(--gradient-sunset);
+        }
+
+        .gradient-card.ocean {
+            background: var(--gradient-ocean);
+        }
+
+        .gradient-card.aurora {
+            background: var(--gradient-aurora);
+        }
+
+        .gradient-card.purple {
+            background: var(--gradient-purple);
+        }
+
+        .gradient-card i {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .card-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-content p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--bg-white);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        /* Right Sidebar */
+        .right-sidebar {
+            background: var(--bg-white);
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .profile-widget {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-widget .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .profile-widget .profile-pic:hover {
+            transform: scale(1.05);
+            border-color: var(--gradient-primary);
+        }
+
+        .profile-widget h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .profile-widget p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        /* Mini Calendar */
+        .mini-calendar {
+            background: var(--bg-light);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mini-calendar:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .mini-calendar h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+
+        .mini-calendar-grid .day-header {
+            font-weight: 600;
+            color: var(--text-light);
+            padding: 3px 0;
+        }
+
+        .mini-calendar-grid .day {
+            padding: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .mini-calendar-grid .day.today {
+            background: var(--gradient-primary);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .mini-calendar-grid .day.highlighted {
+            background: var(--accent-color);
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Reminders Section */
+        .reminders {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .reminders h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .reminders-list {
+            list-style: none;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+
+        .reminders-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .reminders-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .reminders-list::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+
+        .reminders-list li {
+            background: var(--bg-light);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .reminders-list li:hover {
+            background: #e9ecef;
+            transform: translateX(-5px);
+        }
+
+        .reminders-list .reminder-icon {
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+        }
+
+        .reminders-list li:hover .reminder-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .reminders-list .reminder-text {
+            flex-grow: 1;
+        }
+
+        .reminders-list .reminder-time {
+            color: var(--text-light);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .reminders-list li:hover .reminder-time {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--sidebar-bg);
+            color: var(--bg-white);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--gradient-primary);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar,
+            .right-sidebar {
+                position: fixed;
+                top: 0;
+                height: 100vh;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .right-sidebar {
+                right: 0;
+                left: auto;
+                transform: translateX(100%);
+            }
+
+            .sidebar.active,
+            .right-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+
+    <div class="app-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo"><i class="fas fa-graduation-cap"></i><span>Mindset</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="bench.html"><i class="fas fa-book-open"></i> Benches</a></li>
+                    <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="tools.html"><i class="fas fa-tools"></i> Tools</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header with Search and Date -->
+            <div class="dashboard-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="search" placeholder="Search for benches, lessons, or friends...">
+                </div>
+                <div class="date-display" id="dateDisplay">
+                    <i class="far fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Welcome Banner -->
+            <section class="welcome-banner">
+                <h1>Welcome, <span id="userName">Loading...</span>!</h1>
+            </section>
+
+            <!-- Benches and Lessons Grid -->
+            <div class="content-grid">
+                <!-- Benches Section -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Your Benches</h2>
+                        <button class="view-all-btn" onclick="window.location.href='bench.html'">View All</button>
+                    </div>
+                    <div class="cards-grid" id="benchesList">
+                        <!-- Cards will be injected by JS from Firebase -->
+                    </div>
+                </section>
+
+                <!-- Lessons Section -->
+                <section class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Lessons</h2>
+                        <button class="view-all-btn" onclick="window.location.href='bench.html'">View All</button>
+                    </div>
+                    <div class="cards-grid" id="lessonsList">
+                        <!-- Cards will be injected by JS from Firebase -->
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar" id="rightSidebar">
+            <div class="profile-widget">
+                <img src="" alt="Profile Pic" class="profile-pic" id="profilePic">
+                <h3 id="profileName">Loading...</h3>
+                <p id="profileUsername">@loading</p>
+            </div>
+
+            <!-- Mini Calendar -->
+            <div class="mini-calendar" onclick="window.location.href='tools.html#calendar'">
+                <h4 id="calendarMonthYear">Loading...</h4>
+                <div class="mini-calendar-grid" id="miniCalendarGrid">
+                    <!-- Calendar will be generated dynamically from Firebase -->
+                </div>
+            </div>
+
+            <!-- Reminders Section -->
+            <div class="reminders">
+                <h4>Reminders</h4>
+                <ul class="reminders-list" id="remindersList">
+                    <!-- Reminders will be loaded from Firebase -->
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-a6qP2kDNCdVv0zRl2AQYJ3QTNe18cYA",
+            authDomain: "mindset-94cb1.firebaseapp.com",
+            projectId: "mindset-94cb1",
+            storageBucket: "mindset-94cb1.firebasestorage.app",
+            messagingSenderId: "1070543818778",
+            appId: "1:1070543818778:web:39414a72999678399ac1a3",
+            databaseURL: "https://mindset-94cb1-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let currentUser = null;
+
+        function checkAuthState() {
+            const userSession = JSON.parse(localStorage.getItem('mindsetUser'));
+            if (!userSession) { window.location.href = 'index.html'; return; }
+            if (!userSession.id) {
+                database.ref('users').orderByChild('username').equalTo(userSession.username).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            userSession.id = childSnapshot.key;
+                            localStorage.setItem('mindsetUser', JSON.stringify(userSession));
+                            currentUser = userSession;
+                            initializeDashboard();
+                        });
+                    } else { localStorage.removeItem('mindsetUser'); window.location.href = 'index.html'; }
+                });
+            } else { currentUser = userSession; initializeDashboard(); }
+        }
+
+        function initializeDashboard() {
+            updateDate();
+            loadUserData();
+            loadBenches();
+            loadLessons();
+            loadReminders();
+            generateMiniCalendar();
+        }
+
+        function updateDate() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function loadUserData() {
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileUsername').textContent = '@' + currentUser.username;
+            // Update avatar display
+            function updateAvatar(userData) {
+                const avatarElement = document.getElementById('profileAvatar');
+                const initialElement = document.getElementById('avatarInitial');
+
+                // Clear previous avatar
+                avatarElement.innerHTML = '';
+
+                if (userData.avatar && userData.avatar !== '') {
+                    // Create image element
+                    const img = document.createElement('img');
+                    img.src = userData.avatar;
+                    img.alt = 'Profile Avatar';
+                    img.onerror = function () {
+                        // If image fails to load, show initial
+                        this.remove();
+                        showInitialAvatar(userData);
+                    };
+                    avatarElement.appendChild(img);
+                } else {
+                    // Show initial avatar
+                    showInitialAvatar(userData);
+                }
+            }
+        }
+
+        function loadBenches() {
+            const benchesList = document.getElementById('benchesList');
+            benchesList.innerHTML = '<p style="text-align:center; color: var(--text-light);">Loading benches...</p>';
+
+            database.ref('benches').orderByChild('members/' + currentUser.id).equalTo(true).limitToFirst(3).once('value')
+                .then(snapshot => {
+                    benchesList.innerHTML = '';
+                    if (snapshot.exists()) {
+                        let count = 0;
+                        snapshot.forEach(childSnapshot => {
+                            if (count >= 3) return;
+                            const bench = childSnapshot.val();
+                            const gradients = ['warm', 'cool', 'sunset'];
+                            const card = document.createElement('div');
+                            card.className = `gradient-card ${gradients[count]}`;
+                            card.innerHTML = `
+                                <i class="fas fa-book-open"></i>
+                                <div class="card-content">
+                                    <h4>${bench.name}</h4>
+                                    <p>${bench.members ? Object.keys(bench.members).length : 0} members</p>
+                                </div>
+                            `;
+                            benchesList.appendChild(card);
+                            count++;
+                        });
+                    } else {
+                        benchesList.innerHTML = '<p style="text-align:center; color: var(--text-light);">No benches joined yet.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading benches:", error);
+                    benchesList.innerHTML = '<p style="text-align:center; color: red;">Error loading benches.</p>';
+                });
+        }
+
+        function loadLessons() {
+            const lessonsList = document.getElementById('lessonsList');
+            lessonsList.innerHTML = '<p style="text-align:center; color: var(--text-light);">Loading lessons...</p>';
+
+            database.ref('lessons').orderByChild('userId').equalTo(currentUser.id).limitToLast(3).once('value')
+                .then(snapshot => {
+                    lessonsList.innerHTML = '';
+                    if (snapshot.exists()) {
+                        const lessons = [];
+                        snapshot.forEach(childSnapshot => {
+                            lessons.push({ key: childSnapshot.key, ...childSnapshot.val() });
+                        });
+                        lessons.reverse(); // Get the last items
+                        lessons.slice(0, 3).forEach((lesson, index) => {
+                            const gradients = ['ocean', 'aurora', 'purple'];
+                            const card = document.createElement('div');
+                            card.className = `gradient-card ${gradients[index]}`;
+                            card.innerHTML = `
+                                <i class="fas fa-book-reader"></i>
+                                <div class="card-content">
+                                    <h4>${lesson.title}</h4>
+                                    <p>Progress: ${lesson.progress || 0}%</p>
+                                    <div class="progress-bar"><div class="progress-fill" style="width: ${lesson.progress || 0}%"></div></div>
+                                </div>
+                            `;
+                            lessonsList.appendChild(card);
+                        });
+                    } else {
+                        lessonsList.innerHTML = '<p style="text-align:center; color: var(--text-light);">No lessons visited yet.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading lessons:", error);
+                    lessonsList.innerHTML = '<p style="text-align:center; color: red;">Error loading lessons.</p>';
+                });
+        }
+
+        function loadReminders() {
+            const remindersList = document.getElementById('remindersList');
+            remindersList.innerHTML = '<p style="text-align:center; color: var(--text-light);">Loading reminders...</p>';
+
+            database.ref('reminders').orderByChild('userId').equalTo(currentUser.id).once('value')
+                .then(snapshot => {
+                    remindersList.innerHTML = '';
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnapshot => {
+                            const reminder = childSnapshot.val();
+                            const li = document.createElement('li');
+                            let iconClass = 'fa-bell';
+                            if (reminder.type === 'test') iconClass = 'fa-book';
+                            else if (reminder.type === 'homework') iconClass = 'fa-tasks';
+                            else if (reminder.type === 'meeting') iconClass = 'fa-users';
+
+                            li.innerHTML = `
+                                <i class="fas ${iconClass} reminder-icon"></i>
+                                <span class="reminder-text">${reminder.text}</span>
+                                <span class="reminder-time">${new Date(reminder.dueDate).toLocaleDateString()}</span>
+                            `;
+                            remindersList.appendChild(li);
+                        });
+                    } else {
+                        remindersList.innerHTML = '<li><p style="text-align:center; width:100%;">No reminders set.</p></li>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading reminders:", error);
+                    remindersList.innerHTML = '<li><p style="text-align:center; width:100%; color:red;">Error loading reminders.</p></li>';
+                });
+        }
+
+        function generateMiniCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            document.getElementById('calendarMonthYear').textContent = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = now.getDate();
+
+            const miniCalendarGrid = document.getElementById('miniCalendarGrid');
+            miniCalendarGrid.innerHTML = '';
+
+            const dayHeaders = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                miniCalendarGrid.appendChild(dayHeader);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                miniCalendarGrid.appendChild(emptyDay);
+            }
+
+            // Fetch calendar events from Firebase
+            database.ref(`users/${currentUser.id}/calendarEvents/${year}-${month}`).once('value')
+                .then(eventSnapshot => {
+                    const events = eventSnapshot.val() || {};
+
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const dayElement = document.createElement('div');
+                        dayElement.className = 'day';
+                        if (day === today) dayElement.classList.add('today');
+                        if (events[day]) dayElement.classList.add('highlighted');
+                        dayElement.textContent = day;
+                        miniCalendarGrid.appendChild(dayElement);
+                    }
+                });
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const rightSidebar = document.getElementById('rightSidebar');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            rightSidebar.classList.remove('active');
+        });
+
+        document.querySelector('.main-content').addEventListener('click', () => {
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.remove('active');
+                rightSidebar.classList.remove('active');
+            }
+        });
+
+        window.onload = checkAuthState;
+    </script>
+</body>
+
+</html>
